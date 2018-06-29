@@ -1,2 +1,2 @@
-# ansible-hdps-sandbox
-ansible-hdps-sandbox
+# ansible-hdp-sandbox
+ansible-hdp-sandbox
