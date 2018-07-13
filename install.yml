@@ -70,12 +70,12 @@
         baseurl: "{{ local_epel |default('https://download.fedoraproject.org/pub/epel/$releasever/$basearch/') }}"
         gpgcheck: no
 
-    - roles:
-        - {role: 'jdk', tags: 'pre'}
-        - {role: 'kerberos', tags: 'pre'}
-        - {role: 'postgresql', tags: 'pre'}
-        - {role: 'ambari', tags: 'pre'}
-        - {role: 'hdp', tags: 'main'}
-        - {role: 'client', tags: 'post'}
+  roles:
+    - {role: 'jdk', tags: 'pre'}
+    - {role: 'kerberos', tags: 'pre'}
+    - {role: 'postgresql', tags: 'pre'}
+    - {role: 'ambari', tags: 'pre'}
+    - {role: 'hdp', tags: 'main'}
+    - {role: 'client', tags: 'post'}
 
         
