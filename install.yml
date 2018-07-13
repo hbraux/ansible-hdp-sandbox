@@ -7,6 +7,10 @@
 - name: install environment
   hosts: localhost
   become: true
+  vars:
+    # python -c 'import crypt; print crypt.crypt("password", "$1$SomeSalt$")'
+    password: $1$SomeSalt$/jbIwfYCu0MxPBND2EtRH.
+
   tasks:
     - name: install packages
       yum:
@@ -30,6 +34,7 @@
     - name: create user {{ username }}
       user:
         name: "{{ username }}"
+        password: "{{ client.password }}"
         group: users
         groups: wheel
 
