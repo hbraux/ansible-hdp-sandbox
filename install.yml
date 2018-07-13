@@ -34,7 +34,7 @@
     - name: create working user {{ username }}
       user:
         name: "{{ username }}"
-        password: "{{ client.password }}"
+        password: "{{ password }}"
         group: users
         groups: wheel
 
