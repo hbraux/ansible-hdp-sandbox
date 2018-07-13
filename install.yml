@@ -1,0 +1,76 @@
+# the playbook expects following variables to be passed with --extra-vars
+# username: Unix user to be created
+# userkey: public key for SSH
+# github_repo: github repository (relative path)
+# centos_mirror: fqdn or @IP of CentOS mirror (optional)
+
+- name: install environment
+  hosts: localhost
+  become: true
+  tasks:
+    - name: install packages
+      yum:
+        name: "{{ item }}"
+      with_items:
+        - sudo
+        - nano
+        - git
+
+    - name: ensure that wheel group exist
+      group:
+        name: wheel
+
+    - name: allow passwordless sudo for wheel group
+      lineinfile:
+        dest: /etc/sudoers
+        regexp: '^%wheel'
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: create user {{ username }}
+      user:
+        name: "{{ username }}"
+        group: users
+        groups: wheel
+
+    - name: add public key to user {{ username }}
+      authorized_key:
+        user: "{{ username }}"
+        key: "{{ userkey }}"
+
+    - name: clone the git repo
+      git:
+        repo: https://github.com/{{ github_repo }}.git
+        dest: /home/{{ username }}/git/hub/linux-env
+
+    - name: update the owner
+      file:
+        path: /home/{{ username }}/git
+        owner: "{{ username }}"
+        group: users
+
+    - name: setup the env
+      shell: /home/{{ username }}/git/hub/linux-env/setup.sh
+      become_user: "{{ username }}"
+
+
+    - set_fact:
+        local_epel: http://{{ centos_mirror }}/fedora/epel/$releasever/$basearch/
+      when: centos_mirror is defined
+      
+    - name: Add Epel repo
+      yum_repository:
+        name: epel
+        description: EPEL YUM repo
+        baseurl: "{{ local_epel |default('https://download.fedoraproject.org/pub/epel/$releasever/$basearch/') }}"
+        gpgcheck: no
+
+    - roles:
+        - {role: 'jdk', tags: 'pre'}
+        - {role: 'kerberos', tags: 'pre'}
+        - {role: 'postgresql', tags: 'pre'}
+        - {role: 'ambari', tags: 'pre'}
+        - {role: 'hdp', tags: 'main'}
+        - {role: 'client', tags: 'post'}
+
+        

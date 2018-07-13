@@ -1,0 +1,19 @@
+- name: install postgresql
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - postgresql
+    - postgresql-server
+    - postgresql-jdbc
+    - python-psycopg2
+
+- name: Init postgresql
+  shell: postgresql-setup initdb
+  args:
+    creates: /var/lib/pgsql/initdb.log
+
+- name: start postgresql
+  service:
+    name: postgresql
+    state: started
+

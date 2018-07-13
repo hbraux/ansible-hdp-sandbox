@@ -1,0 +1,45 @@
+- name: install Kerberos
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - krb5-server
+    - krb5-libs
+    - krb5-workstation
+
+- name: update krb5.conf
+  template:
+    src: krb5.conf.j2
+    dest: /etc/krb5.conf
+
+- name: update kdc.conf
+  lineinfile:
+    path: /var/kerberos/krb5kdc/kdc.conf
+    regexp: '^ EXAMPLE.COM = \{'
+    line: "{{ kerberos.realm }} = {"
+    backrefs: yes
+
+- name: update kadm5.acl
+  lineinfile:
+    path: /var/kerberos/krb5kdc/kadm5.acl
+    regexp: '^\*/admin'
+    line: "*/admin@HOSTONLY.COM *"
+
+- name: Create the Kerberos database
+  shell: echo -e "{{ kerberos.password }}\n{{ kerberos.password }}" | kdb5_util create -s
+  args:
+    creates: /var/kerberos/krb5kdc/principal
+
+- name: Create admin user
+  shell: echo -e "{{ kerberos.password }}\n{{ kerberos.password }}" | kadmin.local  -q "addprinc {{ kerberos.user }}/admin"
+
+- name: start krb5kdc
+  service:
+    name: krb5kdc
+    state: started
+    enabled: true
+
+- name: start kadmin
+  service:
+    name: kadmin
+    state: started
+    enabled: true
