@@ -1,0 +1,9 @@
+- name: deploy.yml
+  hosts: localhost
+  become: true
+  roles:
+    - {role: 'jdk', tags: 'pre'}
+    - {role: 'kerberos', tags: 'pre'}
+    - {role: 'postgresql', tags: 'pre'}
+    - {role: 'ambari', tags: 'pre'}
+    - {role: 'hdp',  tags: 'main'}

@@ -4,7 +4,7 @@
 # github_repo: github repository (relative path)
 # centos_mirror: fqdn or @IP of CentOS mirror (optional)
 
-- name: install environment
+- name: install.yml
   hosts: localhost
   become: true
   vars:
@@ -12,7 +12,7 @@
     password: $1$SomeSalt$/jbIwfYCu0MxPBND2EtRH.
 
   tasks:
-    - name: install packages
+    - name: install basic packages
       yum:
         name: "{{ item }}"
       with_items:
@@ -31,7 +31,7 @@
         line: '%wheel ALL=(ALL) NOPASSWD: ALL'
         validate: 'visudo -cf %s'
 
-    - name: create user {{ username }}
+    - name: create working user {{ username }}
       user:
         name: "{{ username }}"
         password: "{{ client.password }}"
@@ -43,21 +43,16 @@
         user: "{{ username }}"
         key: "{{ userkey }}"
 
-    - name: clone the git repo
+    - name: clone the git repo github.com/{{ github_repo }}
       git:
         repo: https://github.com/{{ github_repo }}.git
-        dest: /home/{{ username }}/git/hub/linux-env
+        dest: /home/{{ username }}/deploy
 
-    - name: update the owner
+    - name: update the repo owner 
       file:
-        path: /home/{{ username }}/git
+        path: /home/{{ username }}/deploy
         owner: "{{ username }}"
         group: users
-
-    - name: setup the env
-      shell: /home/{{ username }}/git/hub/linux-env/setup.sh
-      become_user: "{{ username }}"
-
 
     - set_fact:
         local_epel: http://{{ centos_mirror }}/fedora/epel/$releasever/$basearch/
@@ -70,12 +65,7 @@
         baseurl: "{{ local_epel |default('https://download.fedoraproject.org/pub/epel/$releasever/$basearch/') }}"
         gpgcheck: no
 
-  roles:
-    - {role: 'jdk', tags: 'pre'}
-    - {role: 'kerberos', tags: 'pre'}
-    - {role: 'postgresql', tags: 'pre'}
-    - {role: 'ambari', tags: 'pre'}
-    - {role: 'hdp', tags: 'main'}
-    - {role: 'client', tags: 'post'}
-
-        
+    - name: run the deploy playbook from /home/{{ username }}/deploy
+      shell: ansible-playbook deploy.yml
+      args:
+        chdir: /home/{{ username }}/deploy
