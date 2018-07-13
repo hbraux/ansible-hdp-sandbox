@@ -29,9 +29,19 @@ fi
 
 if [[ ! -d .git ]]
 then
-  echo "(vagrant.sh) downloading install.yml"
+  echo "(vagrant.sh) downloading https://raw.githubusercontent.com/$1/master/install.yml"
   curl -s -o install.yml "https://raw.githubusercontent.com/$1/master/install.yml?$(date +%s)"
 fi
 
-echo "(vagrant.sh) executing Playbook install.yml"
-ansible-playbook install.yml -e github_repo=$1 -e username=$2 -e "userkey=\"$3\"" -e centos_mirror="$4"
+if [[ ! -d deploy ]]
+then
+  echo "(vagrant.sh) executing Playbook install.yml"
+  ansible-playbook install.yml -e github_repo=$1 -e username=$2 -e "userkey=\"$3\"" -e centos_mirror="$4"
+fi
+
+if [[ -d deploy ]]
+then
+  cd deploy
+  echo "(vagrant.sh) executing Playbook deploy.yml"
+  ansible-playbook deploy.yml
+fi

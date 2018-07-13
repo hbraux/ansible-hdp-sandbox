@@ -65,7 +65,3 @@
         baseurl: "{{ local_epel |default('https://download.fedoraproject.org/pub/epel/$releasever/$basearch/') }}"
         gpgcheck: no
 
-    - name: run the deploy playbook from /home/{{ username }}/deploy
-      shell: ansible-playbook deploy.yml
-      args:
-        chdir: /home/{{ username }}/deploy
