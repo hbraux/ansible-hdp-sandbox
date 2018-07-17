@@ -1,14 +1,14 @@
 #!/bin/bash
 
 opts=""
-if [[ $# -eq 0 ]]
-then target=localhost
-else target=$1
-     shift
-fi
-[[ ${1:0:2} == -- ]] &&  opts=" --tags $1"
+[[ $# -eq 0 ]] ||  opts="--tags $1"
+
+[[ -n  $http_proxy ]] && opts="$opts -e http_proxy=$http_proxy -e https_proxy=$http_proxy -e no_proxy=$no_proxy"
+
+[[ -f $HOME/.sshuser ]] && opts="$opts -u $(cat $HOME/.sshuser)"
 
 cd $(dirname $0)
-ansible-playbook deploy.yml $opts -i $target,
+ansible-playbook deploy.yml $opts -i hdp.hostonly.com, -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e https_proxy=$http_proxy
+
 
 

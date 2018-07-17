@@ -1,8 +1,15 @@
+
 - name: deploy.yml
+  hosts: all
   become: yes
+  vars:
+    kerberos:
+      adm_user: admin
+      adm_pass: nimda
   roles:
     - {role: 'jdk', tags: 'pre'}
     - {role: 'kerberos', tags: 'pre'}
     - {role: 'postgresql', tags: 'pre'}
     - {role: 'ambari', tags: 'pre'}
     - {role: 'hdp',  tags: 'main'}
+
