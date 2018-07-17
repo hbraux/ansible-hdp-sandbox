@@ -1,6 +1,5 @@
 - name: deploy.yml
-  hosts: localhost
-  become: true
+  become: yes
   roles:
     - {role: 'jdk', tags: 'pre'}
     - {role: 'kerberos', tags: 'pre'}

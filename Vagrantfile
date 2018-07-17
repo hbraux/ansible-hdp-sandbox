@@ -4,8 +4,13 @@ BOX_RAM = "8192"
 BOX_CPU = "4" 
 BOX_IP = "192.168.56.3"
 GITHUB_REPO = "hbraux/ansible-hdp-sandbox"
+# python -c 'import crypt; print crypt.crypt("password", "$1$SomeSalt$")'
+password = "$1$SomeSalt$/jbIwfYCu0MxPBND2EtRH."
 
 Vagrant.configure("2") do |config|
+        if File.file?("key.pub")
+       	  password = File.readlines("key.pub").first.strip
+	end
 	pubkey = File.readlines("key.pub").first.strip
 	config.proxy.enabled = { yum: false }
 	config.vm.define BOX_NAME
@@ -19,6 +24,6 @@ Vagrant.configure("2") do |config|
 		vb.customize ["modifyvm", :id, "--cpus", BOX_CPU]
 		vb.customize ["modifyvm", :id, "--audio", "none"]
 	end
-	config.vm.provision 'shell', inline: "curl -s https://raw.githubusercontent.com/#{GITHUB_REPO}/master/vagrant.sh | bash -s #{GITHUB_REPO} #{ENV['USERNAME']} '#{pubkey}' #{ENV['CENTOS_MIRROR']}"
+	config.vm.provision 'shell', inline: "curl -s https://raw.githubusercontent.com/#{GITHUB_REPO}/master/vagrant.sh | bash -s #{GITHUB_REPO} #{ENV['USERNAME']} '#{password}' #{ENV['CENTOS_MIRROR']}"
 end
 

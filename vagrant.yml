@@ -1,16 +1,12 @@
 # the playbook expects following variables to be passed with --extra-vars
 # username: Unix user to be created
-# userkey: public key for SSH
+# password: password or public SSH key 
 # github_repo: github repository (relative path)
 # centos_mirror: fqdn or @IP of CentOS mirror (optional)
 
-- name: install.yml
-  hosts: localhost
-  become: true
-  vars:
-    # python -c 'import crypt; print crypt.crypt("password", "$1$SomeSalt$")'
-    password: $1$SomeSalt$/jbIwfYCu0MxPBND2EtRH.
-
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
   tasks:
     - name: install basic packages
       yum:
@@ -19,6 +15,19 @@
         - sudo
         - nano
         - git
+
+    - name: check for host rpm files
+      find:
+        path: /vagrant
+        patterns: "*.rpm"
+      ignore_errors: yes
+      register: rpm_files
+
+    - name: install rpm files
+      yum:
+        name: "{{ item.path }}"
+      with_items: "{{ rpm_files.files }}"
+      when: rpm_files.matched > 0
 
     - name: ensure that wheel group exist
       group:
@@ -31,28 +40,45 @@
         line: '%wheel ALL=(ALL) NOPASSWD: ALL'
         validate: 'visudo -cf %s'
 
-    - name: create working user {{ username }}
+    - name: create user {{ username }}
       user:
         name: "{{ username }}"
-        password: "{{ password }}"
         group: users
         groups: wheel
 
     - name: add public key to user {{ username }}
       authorized_key:
         user: "{{ username }}"
-        key: "{{ userkey }}"
+        key: "{{ password }}"
+      when: password is match ("ssh-rsa .*")
 
-    - name: clone the git repo github.com/{{ github_repo }}
+    - name: update password for user {{ username }}
+      user:
+        name: "{{ username }}"
+        password: "{{ password | password_hash('sha512') }}"
+        update_password: always
+      when: password is not match ("ssh-rsa .*")
+
+    - name: allow PasswordAuthentication
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication '
+        line: 'PasswordAuthentication yes'
+      notify:
+        - restart sshd
+      when: password is not match ("ssh-rsa .*")
+
+    - name: clone the git repo
       git:
         repo: https://github.com/{{ github_repo }}.git
-        dest: /home/{{ username }}/deploy
+        dest: /home/{{ username }}/git/{{ github_repo }}
 
-    - name: update the repo owner 
+    - name: update the owner
       file:
-        path: /home/{{ username }}/deploy
+        path: /home/{{ username }}/git
         owner: "{{ username }}"
         group: users
+        recurse: yes
 
     - set_fact:
         local_epel: http://{{ centos_mirror }}/fedora/epel/$releasever/$basearch/
@@ -65,3 +91,8 @@
         baseurl: "{{ local_epel |default('https://download.fedoraproject.org/pub/epel/$releasever/$basearch/') }}"
         gpgcheck: no
 
+  handlers:
+    - name: restart sshd
+      service:
+        name: sshd
+        state: restarted
