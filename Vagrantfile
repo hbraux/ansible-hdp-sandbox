@@ -3,7 +3,7 @@ BOX_DOMAIN = "hostonly.com"
 BOX_RAM = "8192"  
 BOX_CPU = "4" 
 BOX_IP = "192.168.56.3"
-BOX_NOSYNC = "true"
+BOX_NOSYNC = true
 GITHUB_REPO = "hbraux/ansible-hdp-sandbox"
 password = "password"
 
