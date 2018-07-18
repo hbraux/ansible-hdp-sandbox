@@ -1,3 +1,7 @@
+- name: install Ambari dependencies
+  yum:
+    name: unzip,net-tools,initscripts
+
 - name: install Ambari repo
   yum_repository:
     name: ambari
