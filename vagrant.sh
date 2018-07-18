@@ -126,12 +126,13 @@ cat >vagrant.yml <<EOF
       find:
         path: /vagrant
         patterns: "*.rpm"
+        recurse: yes
       ignore_errors: yes
       register: rpm_files
 
     - name: install rpm files
       yum:
-        name: "{{ item.path }}"
+        name: "{{ rpm_files.files | map(attribute='path') }}"
       with_items: "{{ rpm_files.files }}"
       when: rpm_files.matched > 0
 
