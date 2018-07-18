@@ -40,8 +40,9 @@ cat >vagrant.yml <<EOF
   tasks:
     - name: install basic packages
       yum:
-        name: "{{ item }}"
-      with_items:
+        name: "{{ packages }}"
+      var:
+        packages:
         - sudo
         - git
         - emacs-nox
@@ -122,7 +123,7 @@ cat >vagrant.yml <<EOF
         baseurl: "{{ local_epel |default('https://download.fedoraproject.org/pub/epel/\$releasever/\$basearch/') }}"
         gpgcheck: no
 
-    - name: check for host rpm files
+    - name: check for rpm files in /vagrant
       find:
         path: /vagrant
         patterns: "*.rpm"
@@ -132,7 +133,7 @@ cat >vagrant.yml <<EOF
 
     - name: install rpm files
       yum:
-        name: "{{ rpm_files.files | map(attribute='path') }}"
+        name: "{{ rpm_files.files|map(attribute='path')|list }}"
       when: rpm_files.matched > 0
 
   handlers:
