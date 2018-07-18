@@ -1,7 +1,12 @@
 #!/bin/bash
 # This generic script is downloaded and executed by vagrant
-# It make system ready to run the ansible playbook vagrant.yml 
-# Warning: vagrant provision will not re-download this script
+# It install ansible, run the included playbook which creates the working user and clone the Git repo, the run setup.sh from the repo is exists
+# Input argument:s 
+#  $1  github repository (relative path)
+#  $2  Unix user to be created
+#  $3  password or public SSH key 
+#  $4  fqdn or @IP of a CentOS mirror (optional)
+
 
 if [[ $# -lt 3 ]]
 then echo "(vagrant.sh) expecting GITHUB_REPO USERNAME PASSWORD [CENTOS_MIRROR]"; exit 1
@@ -27,11 +32,100 @@ then echo "(vagrant.sh) installing Ansible"
      yum install -y -q ansible
 fi
 
-if [[ ! -d .git ]]
-then
-  echo "(vagrant.sh) downloading vagrant.yml"
-  curl -s -o vagrant.yml "https://raw.githubusercontent.com/$1/master/vagrant.yml?$(date +%s)"
-fi
+cat >vagrant.yml <<EOF
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
+  tasks:
+    - name: install basic packages
+      yum:
+        name: "{{ item }}"
+      with_items:
+        - sudo
+        - git
+        - emacs-nox
+
+    - name: check for host rpm files
+      find:
+        path: /vagrant
+        patterns: "*.rpm"
+      ignore_errors: yes
+      register: rpm_files
+
+    - name: install rpm files
+      yum:
+        name: "{{ item.path }}"
+      with_items: "{{ rpm_files.files }}"
+      when: rpm_files.matched > 0
+
+    - name: ensure that wheel group exist
+      group:
+        name: wheel
+
+    - name: allow passwordless sudo for wheel group
+      lineinfile:
+        dest: /etc/sudoers
+        regexp: '^%wheel'
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: create user {{ username }}
+      user:
+        name: "{{ username }}"
+        group: users
+        groups: wheel
+
+    - name: add public key to user {{ username }}
+      authorized_key:
+        user: "{{ username }}"
+        key: "{{ password }}"
+      when: password is match ("ssh-rsa .*")
+
+    - name: update password for user {{ username }}
+      user:
+        name: "{{ username }}"
+        password: "{{ password | password_hash('sha512') }}"
+        update_password: always
+      when: password is not match ("ssh-rsa .*")
+
+    - name: allow PasswordAuthentication
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication '
+        line: 'PasswordAuthentication yes'
+      notify:
+        - restart sshd
+      when: password is not match ("ssh-rsa .*")
+
+    - name: clone the git repo
+      git:
+        repo: https://github.com/{{ github_repo }}.git
+        dest: /home/{{ username }}/git/{{ github_repo }}
+
+    - name: update the owner
+      file:
+        path: /home/{{ username }}/git
+        owner: "{{ username }}"
+        group: users
+        recurse: yes
+
+    - set_fact:
+        local_epel: http://{{ centos_mirror }}/fedora/epel/\$releasever/\$basearch/
+      when: centos_mirror is defined
+      
+    - name: Add Epel repo
+      yum_repository:
+        name: epel
+        description: EPEL YUM repo
+        baseurl: "{{ local_epel |default('https://download.fedoraproject.org/pub/epel/\$releasever/\$basearch/') }}"
+        gpgcheck: no
+
+  handlers:
+    - name: restart sshd
+      service:
+        name: sshd
+        state: restarted
+EOF
 
 echo "(vagrant.sh) executing Playbook vagrant.yml"
 ansible-playbook vagrant.yml -e github_repo=$1 -e username=$2 -e "password=\"$3\"" -e centos_mirror="$4" -i localhost,
@@ -44,4 +138,3 @@ then echo "(vagrant.sh) executing $setup as user $2"
 fi
 
 echo "(vagrant.sh) all done"
-

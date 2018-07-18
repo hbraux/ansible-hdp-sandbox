@@ -1,0 +1,89 @@
+- name: install Ambari dependencies
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - unzip
+    - net-tools
+    - initscripts
+
+- name: install Ambari repo
+  yum_repository:
+    name: ambari
+    description: Ambari
+    baseurl: "{{ ambari.url }}"
+    gpgcheck: no
+
+- name: install Ambari
+  yum:
+    name: "{{item }}"
+  with_items:
+    - ambari-server
+    - ambari-agent
+
+- name : Create folder /opt/ambari
+  file:
+    dest: /opt/ambari
+    state: directory
+    mode: 0755
+
+- name: configure ambari-server
+  shell: ambari-server setup -j $(readlink -f /usr/bin/java | sed "s:bin/java::") -s >/opt/ambari/ambari-setup.log
+  args:
+    creates: /opt/ambari/ambari-setup.log
+
+- name: enable security on ambari
+  shell: ambari-server setup-security --security-option=encrypt-passwords --master-key=key1 --master-key-persist yes >/opt/ambari/ambari-secured.log
+  args:
+    creates: /opt/ambari/ambari-secured.log
+
+- name: enable PostgreSQL connector on ambari
+  shell: ambari-server setup --jdbc-db=postgres --jdbc-driver=/usr/share/java/postgresql-jdbc.jar -s >/opt/ambari/ambari-postgres.log
+  args:
+    creates: /opt/ambari/ambari-postgres.log
+
+- name : start ambari server 
+  service:
+    name: ambari-server
+    state: started
+    enabled: yes
+
+- name: check for ambari-server to be up
+  wait_for:
+    host: 127.0.0.1
+    port: 8080
+    timeout: 300
+
+- name: prepare API payload
+  set_fact:
+    api_update_pass:
+      Users:
+        user_name: admin
+        password: "{{ ambari.password }}"
+        old_password: admin
+
+# accept 403 in case password was already changed
+- name: update admin password
+  uri:
+    url: http://localhost:8080/api/v1/users/admin
+    method: PUT
+    user: admin
+    password: admin
+    body: "{{ api_update_pass |to_json  }}"
+    force_basic_auth: yes
+    status_code: 200,403
+    body_format: raw
+    headers:
+      X-Requested-By: "ambari"
+
+# fix for connection to server error; EOF occurred in violation of protocol 
+- name: fix ambari-agent.ini
+  lineinfile:
+    path: /etc/ambari-agent/conf/ambari-agent.ini
+    line: "force_https_protocol=PROTOCOL_TLSv1_2"
+    insertafter: '^\[security\]'
+
+- name : start ambari agent
+  service:
+    name: ambari-agent
+    state: started
+    enabled: yes

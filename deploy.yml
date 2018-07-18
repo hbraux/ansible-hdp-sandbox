@@ -4,8 +4,11 @@
   become: yes
   vars:
     kerberos:
-      adm_user: admin
-      adm_pass: nimda
+      realm: "{{ ansible_domain | upper }}"
+      password: nimda
+    ambari:
+       url: http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5
+       password: nimda
   roles:
     - {role: 'jdk', tags: 'pre'}
     - {role: 'kerberos', tags: 'pre'}
