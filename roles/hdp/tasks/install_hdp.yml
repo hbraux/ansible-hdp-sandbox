@@ -17,8 +17,7 @@
 
 - name: pre-install HDP packages to speedup cluster deployment
   yum:
-    name: "{{ item }}"
-  with_items: "{{ packages }}"
+    name: "{{ packages }}"
   when: hdp.preinstall is defined and hdp.preinstall
 
 - name: refresh yum
