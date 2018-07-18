@@ -109,6 +109,18 @@ cat >vagrant.yml <<EOF
         group: users
         recurse: yes
 
+    - shell: uname -n | sed 's/[a-z0-9]*\.//'
+      register: uanme_result
+
+    - name: update .ssh/config
+      blockinfile:
+        path: /home/{{ username }}/.ssh/config
+        owner: "{{ username }}"
+        block: |
+Host *.{{ uname_result.stdout }}
+  StrictHostKeyChecking no
+  UserKnownHostsFile=/dev/null
+
     - set_fact:
         local_epel: http://{{ centos_mirror }}/fedora/epel/\$releasever/\$basearch/
       when: centos_mirror is defined

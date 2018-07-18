@@ -8,7 +8,7 @@ opts=""
 [[ -f $HOME/.sshuser ]] && opts="$opts -u $(cat $HOME/.sshuser)"
 
 cd $(dirname $0)
-ansible-playbook deploy.yml $opts -i hdp.hostonly.com, -e host_key_checking=False -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e https_proxy=$http_proxy
+ansible-playbook deploy.yml $opts -i hdp.hostonly.com, -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e https_proxy=$http_proxy
 
 
 
