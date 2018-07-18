@@ -1,0 +1,178 @@
+- name: stopping services
+  uri:
+    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/services/{{ item }}
+    method: PUT
+    user: admin
+    password: "{{ hdp.cluster.password }}"
+    body: '{"RequestInfo":{"context":"Stopping service"},"Body":{"ServiceInfo":{"state":"INSTALLED"}}}'
+    force_basic_auth: yes
+    status_code: 200,202
+    body_format: raw
+    headers:
+      X-Requested-By: "ambari"
+  with_items:
+    - RANGER
+    - HIVE
+    - HDFS
+  
+- name: wait for services to stop
+  wait_for:
+    port: "{{ item }}"
+    state: stopped
+    host: "{{ inventory_hostname }}"
+  with_items:
+    - "{{ hdp.ports.ranger }}"
+    - "{{ hdp.ports.hive }}"
+    - "{{ hdp.ports.hdfs }}"
+
+
+# HDFS Plugin
+- vars:
+    conf_type: hdfs-site
+    conf_properties:
+      dfs.namenode.inode.attributes.provider.class: org.apache.ranger.authorization.hadoop.RangerHdfsAuthorizer
+  include_tasks: update_config.yml
+
+- vars:
+    conf_type: ranger-hdfs-plugin-properties
+    conf_properties:
+      REPOSITORY_CONFIG_USERNAME: hdfs
+      ranger-hdfs-plugin-enabled: "Yes"
+  include_tasks: update_config.yml
+
+- vars:
+    conf_type: ranger-hdfs-security
+    conf_properties:
+      ranger.plugin.hdfs.policy.rest.url: "http://{{ inventory_hostname }}:6080"
+  include_tasks: update_config.yml
+
+- vars:
+    conf_type: ranger-hdfs-audit
+    conf_properties:
+      xasecure.audit.destination.solr: true
+      xasecure.audit.destination.solr.urls: http://{{ inventory_hostname }}:8886/solr/ranger_audits
+      xasecure.audit.destination.solr.zookeepers: "{{ inventory_hostname }}:2181/infra-solr"
+      xasecure.audit.destination.hdfs.dir: hdfs://{{ inventory_hostname }}:8020/ranger/audit
+  include_tasks: update_config.yml
+
+# Hive Plugin
+- vars:
+    conf_type: hive-env
+    conf_properties:
+      hive_security_authorization: Ranger
+  include_tasks: update_config.yml
+
+- vars:
+    conf_type: hive-site
+    conf_properties:
+      hive.security.authorization.enabled: true
+      hive.server2.enable.doAs: true
+  include_tasks: update_config.yml
+
+- vars:
+    conf_type: hiveserver2-site
+    conf_properties:
+      hive.security.authorization.enabled: true
+      hive.security.authorization.manager: org.apache.ranger.authorization.hive.authorizer.RangerHiveAuthorizerFactory
+      hive.security.authenticator.manager: org.apache.hadoop.hive.ql.security.SessionStateUserAuthenticator
+      hive.conf.restricted.list: 'hive.security.authenticator.manager,hive.security.authorization.manager,hive.security.metastore.authorization.manager,hive.security.metastore.authenticator.manager,hive.users.in.admin.role,hive.server2.xsrf.filter.enabled,hive.security.authorization.enabled'
+  include_tasks: update_config.yml
+
+- vars:
+    conf_type: ranger-hive-security
+    conf_properties:
+      ranger.plugin.hive.policy.rest.url: http://{{ inventory_hostname }}:6080
+  include_tasks: update_config.yml
+
+- vars:
+    conf_type: ranger-hive-audit
+    conf_properties:
+      xasecure.audit.destination.solr: true
+      xasecure.audit.destination.solr.urls: http://{{ inventory_hostname }}:8886/solr/ranger_audits
+      xasecure.audit.destination.solr.zookeepers: "{{ inventory_hostname }}:2181/infra-solr"
+      xasecure.audit.destination.hdfs.dir: hdfs://{{ inventory_hostname }}:8020/ranger/audit
+  include_tasks: update_config.yml
+
+
+# HBase Plugin
+
+- vars:
+    conf_type: hbase-site
+    conf_properties:
+      hbase.coprocessor.master.classes: org.apache.ranger.authorization.hbase.RangerAuthorizationCoprocessor
+      hbase.coprocessor.regionserver.classes: org.apache.ranger.authorization.hbase.RangerAuthorizationCoprocessor
+      hbase.coprocessor.region.classes: 'org.apache.hadoop.hbase.security.token.TokenProvider,org.apache.hadoop.hbase.security.access.SecureBulkLoadEndpoint,org.apache.ranger.authorization.hbase.RangerAuthorizationCoprocessor'
+  include_tasks: update_config.yml
+
+- vars:
+    conf_type: ranger-hbase-security
+    conf_properties:
+      ranger.plugin.hbase.policy.rest.url: http://{{ inventory_hostname }}:6080
+  include_tasks: update_config.yml
+
+- vars:
+    conf_type: ranger-hbase-plugin-properties
+    conf_properties:
+      ranger-hdfs-plugin-enabled: "Yes"
+  include_tasks: update_config.yml
+
+- vars:
+    conf_type: ranger-hbase-audit
+    conf_properties:
+      xasecure.audit.destination.solr: true
+      xasecure.audit.destination.solr.urls: http://{{ inventory_hostname }}:8886/solr/ranger_audits
+      xasecure.audit.destination.solr.zookeepers: "{{ inventory_hostname }}:2181/infra-solr"
+      xasecure.audit.destination.hdfs.dir: hdfs://{{ inventory_hostname }}:8020/ranger/audit
+  include_tasks: update_config.yml
+
+
+# restart Ranger
+- name: starting Ranger
+  uri:
+    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/services/RANGER
+    method: PUT
+    user: admin
+    password: "{{ hdp.cluster.password }}"
+    body: '{"RequestInfo":{"context":"Starting Ranger"},"Body":{"ServiceInfo":{"state":"STARTED"}}}'
+    force_basic_auth: yes
+    status_code: 202
+    body_format: raw
+    headers:
+      X-Requested-By: "ambari"
+
+- name: wait for Ranger to be ready
+  wait_for:
+    port: "{{ hdp.ports.ranger }}"
+    host: "{{ inventory_hostname }}"
+    timeout: 500
+
+- name: wait 1 minute for services policy creation
+  wait_for:
+    timeout: 60
+
+- name: re-starting HDFS and HIVE
+  uri:
+    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/services/{{ item }}
+    method: PUT
+    user: admin
+    password: "{{ hdp.cluster.password }}"
+    body: '{"RequestInfo":{"context":"Starting service"},"Body":{"ServiceInfo":{"state":"STARTED"}}}'
+    force_basic_auth: yes
+    status_code: 202
+    body_format: raw
+    headers:
+      X-Requested-By: "ambari"
+  with_items:
+    - HDFS
+    - HIVE
+
+- name: wait for services to be ready
+  wait_for:
+    port: "{{ item }}"
+    host: "{{ inventory_hostname }}"
+    timeout: 500
+  with_items:
+    - "{{ hdp.ports.hdfs }}"
+    - "{{ hdp.ports.hive }}"
+
+

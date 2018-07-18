@@ -1,0 +1,82 @@
+- name: check if version HDP-{{ hdp.subversion }} is already registered 
+  uri:
+    url: http://localhost:8080/api/v1/version_definitions/1
+    method: GET
+    user: admin
+    password: "{{ ambari.password }}"
+    status_code: 200,404
+    force_basic_auth: yes
+  register: request_version
+
+- name: INSTALLING HDP
+  include_tasks: install_hdp.yml
+  when: request_version.status == 404
+
+- name: check if cluster is already created
+  uri:
+    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}
+    method: GET
+    user: admin
+    password: "{{ ambari.password }}"
+    status_code: 200,404
+    force_basic_auth: yes
+    return_content: yes
+  register: request_cluster
+  
+- name: DEPLOYING CLUSTER
+  include_tasks: deploy_cluster.yml
+  when: request_cluster.status == 404
+
+- name: check if Kerberos is already enabled
+  set_fact:
+    request_content:  "{{ request_cluster.content | from_json }}"
+
+- name: ENABLING KERBEROS
+  include_tasks: enable_kerberos.yml
+  when: hdp.cluster.kerberos is defined and request_content.Clusters.security_type is not defined or request_content.Clusters.security_type != 'KERBEROS'
+
+# Check if Ranger plugins are enabled (they should automatically create services in Ranger config)
+- name: check if Ranger is configured
+  uri:
+    url: http://localhost:6080/service/public/api/repository
+    method: GET
+    user: admin
+    password: "{{ hdp.cluster.ranger.password }}"
+    status_code: 200
+    return_content: yes
+    force_basic_auth: yes
+  register: request_ranger
+
+- set_fact:
+    request_content: "{{ request_ranger.content | from_json }}"
+
+- name: ENABLING RANGER
+  include_tasks: enable_ranger.yml
+  when: hdp.cluster.kerberos is defined and request_content.totalCount is defined and request_content.totalCount == 0
+
+- name: create environment file for hdp
+  template:
+    src: env-HDP.j2
+    dest: "{{ global.localhost.clientdir }}/env-HDP.sh"
+  delegate_to: localhost
+
+# Ansible Workaround to prevent the kill task beeing executed
+- name: check tags
+  shell: /bin/true
+  register: no_tags
+
+- name: check tags
+  shell: /bin/true
+  register: standard_tags
+  tags: ['pre', 'post', 'main']
+  
+- name: DESTROYING CLUSTER
+  include_tasks: destroy_cluster.yml 
+  when: no_tags is not defined and standard_tags is not defined
+  tags: kill
+
+
+
+
+
+
