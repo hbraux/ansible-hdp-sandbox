@@ -40,12 +40,7 @@ cat >vagrant.yml <<EOF
   tasks:
     - name: install basic packages
       yum:
-        name: "{{ packages }}"
-      vars:
-        packages:
-        - sudo
-        - git
-        - emacs-nox
+        name: sudo,git,emacs-nox
 
     - name: ensure that wheel group exist
       group:
