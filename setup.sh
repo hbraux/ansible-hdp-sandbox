@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if [[ -n $1 ]]
-then opts="-i $1"; shift
-else opts="--connection=local -i $(uanme -n),"
+then opts="-i $1,"; shift
+else opts="--connection=local -i $(uname -n),"
 fi
 
 [[ ${1:0:2} == -- ]] ||  opts="$opts --tags ${1:2}"
