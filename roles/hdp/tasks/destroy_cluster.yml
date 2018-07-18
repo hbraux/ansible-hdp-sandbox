@@ -7,10 +7,10 @@
 
 - name: stop the services
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/services
+    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/services
     method: PUT
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     body: '{"RequestInfo":{"context":"Stopping services"},"Body":{"ServiceInfo":{"state":"INSTALLED"}}}'
     force_basic_auth: yes
     status_code: 200,202
@@ -70,7 +70,7 @@
 # to be sure to cleanup Ambari's cache and data
 - name: uninstall Ambari
   yum:
-    name: "{{item }}"
+    name: "{{ item }}"
     state: absent
   with_items:
     - ambari-server
