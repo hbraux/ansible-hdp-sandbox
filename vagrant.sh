@@ -41,7 +41,7 @@ cat >vagrant.yml <<EOF
     - name: install basic packages
       yum:
         name: "{{ packages }}"
-      var:
+      vars:
         packages:
         - sudo
         - git
