@@ -146,7 +146,7 @@
     api_add_kdcadmin:
       Credential:
         principal: admin/admin
-        key:  "{{ hdp.cluster.kerberos.password }}"
+        key:  "{{ ambari.password }}"
         type: persisted
 
 - name:  add KDC admin 
