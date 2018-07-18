@@ -21,9 +21,9 @@
     state: stopped
     host: "{{ inventory_hostname }}"
   with_items:
-    - "{{ hdp.ports.ranger }}"
-    - "{{ hdp.ports.hive }}"
-    - "{{ hdp.ports.hdfs }}"
+    - "{{ ports.ranger }}"
+    - "{{ ports.hive }}"
+    - "{{ ports.hdfs }}"
 
 
 # HDFS Plugin
@@ -142,7 +142,7 @@
 
 - name: wait for Ranger to be ready
   wait_for:
-    port: "{{ hdp.ports.ranger }}"
+    port: "{{ ports.ranger }}"
     host: "{{ inventory_hostname }}"
     timeout: 500
 
@@ -172,7 +172,7 @@
     host: "{{ inventory_hostname }}"
     timeout: 500
   with_items:
-    - "{{ hdp.ports.hdfs }}"
-    - "{{ hdp.ports.hive }}"
+    - "{{ ports.hdfs }}"
+    - "{{ ports.hive }}"
 
 

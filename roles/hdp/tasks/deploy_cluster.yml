@@ -3,7 +3,6 @@
 - name: create Hive PostgreSQL database
   postgresql_db:
     name: hive
-  become: true
   become_user: postgres
 
 - name: create Hive user
@@ -11,13 +10,11 @@
     db:  hive
     name: hive
     password: hive123
-  become: true
   become_user: postgres
 
 - name: create Ranger PostgreSQL database
   postgresql_db:
     name: ranger
-  become: true
   become_user: postgres
 
 - name: create Ranger user
@@ -25,7 +22,6 @@
     db:  ranger
     name: ranger
     password: ranger123
-  become: true
   become_user: postgres
 
 - name: add users to pg_hba.conf
@@ -33,7 +29,6 @@
     path: /var/lib/pgsql/data/pg_hba.conf
     regexp: "^host  all .* 0.0.0.0/0  md5"
     line: "host  all   ambari,mapred,hive,ranger 0.0.0.0/0  md5"
-  become: true  
   notify: restart postgresql
 
 - name: fix ranger directory permissions
@@ -42,7 +37,6 @@
     state: directory
     owner: ranger
     recurse: yes
-  become: true
   
 - meta: flush_handlers
 
@@ -106,9 +100,9 @@
               create_db_dbuser: false
               ranger_user : ranger
               db_password: ranger123
-              admin_password: "{{ hdp.cluster.ranger.password }}"
+              admin_password: "{{ cluster.ranger_password }}"
               ranger_admin_username: admin
-              ranger_admin_password: "{{ hdp.cluster.ranger.password }}"
+              ranger_admin_password: "{{ cluster.ranger_password }}"
               ranger.authentication.method: UNIX
               is_solrCloud_enabled: true
         - ranger-admin-site:
@@ -123,7 +117,7 @@
     url: http://localhost:8080/api/v1/blueprints/singlenode?validate_topology=false
     method: POST
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     body: "{{ api_blueprint | to_json }}"
     status_code: 201
     force_basic_auth: yes
@@ -135,18 +129,18 @@
   set_fact:
     api_create_cluster:
       blueprint: ansible
-      default_password: "{{ hdp.cluster.password }}"
+      default_password: "{{ ambari.password }}"
       host_groups :
         - name: hostgroup1
           hosts:
             -  fqdn: "{{ inventory_hostname }}" 
 
-- name: submit creation request for cluster {{ hdp.cluster.name }}
+- name: submit creation request for cluster {{ cluster.name }}
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}
+    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}
     method: POST
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     body: "{{ api_create_cluster |to_json  }}"
     status_code: 202
     force_basic_auth: yes
@@ -161,5 +155,5 @@
     port: "{{ item.value }}"
     host: "{{ inventory_hostname }}"
     timeout: 900
-  with_dict: "{{ hdp.ports }}"
+  with_dict: "{{ ports }}"
 

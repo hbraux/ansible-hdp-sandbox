@@ -1,10 +1,24 @@
-- name: install Ambari dependencies
+- name: install Ambari and HDP packages dependencies
   yum:
     name: "{{ item }}"
   with_items:
     - unzip
     - net-tools
     - initscripts
+    - at
+    - avahi-libs
+    - bc
+    - cups-client
+    - cups-libs
+    - ed
+    - libpcap
+    - libtirpc-devel
+    - m4
+    - mailx
+    - nmap-ncat
+    - psmisc
+    - spax
+    - time
 
 - name: install Ambari repo
   yum_repository:

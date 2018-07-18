@@ -11,7 +11,7 @@
     url: http://localhost:8080/api/v1/stacks/HDP/versions/{{ hdp.version }}/artifacts/kerberos_descriptor
     method: GET
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     status_code: 200
     force_basic_auth: yes
     return_content: yes
@@ -23,21 +23,19 @@
   copy:
     content: "{{ request_krb.content  }}"
     dest: /tmp/krbdesc.json
-  become: true
 
 - name: remove unwanted properties from Descriptor
   shell: |
      echo >> /tmp/krbdesc.json
      sed 's/, "href": "[^"]*"//;s/"stack_name": "HDP",//;s/, "stack_version": "[^"]*"//' /tmp/krbdesc.json
   register: file_ds
-  become: true
 
-- name: add Kerberos service to cluster {{ hdp.cluster.name }}
+- name: add Kerberos service to cluster {{ cluster.name }}
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/services/KERBEROS
+    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/services/KERBEROS
     method: POST
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     status_code: 201
     force_basic_auth: yes
     headers:
@@ -46,10 +44,10 @@
 
 - name: add Kerberos client component to Kerberos service
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/services/KERBEROS/components/KERBEROS_CLIENT
+    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/services/KERBEROS/components/KERBEROS_CLIENT
     method: POST
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     status_code: 201
     force_basic_auth: yes
     headers:
@@ -58,10 +56,10 @@
 
 - name: add Kerberos client on {{ inventory_hostname }}
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/hosts/{{ inventory_hostname }}/host_components/KERBEROS_CLIENT
+    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/hosts/{{ inventory_hostname }}/host_components/KERBEROS_CLIENT
     method: POST
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     status_code: 201
     force_basic_auth: yes
     body_format: raw
@@ -92,7 +90,7 @@
                 manage_identities: true
                 install_packages: false
                 encryption_types: "aes des3-cbc-sha1 rc4 des-cbc-md5"
-                realm: "{{ hdp.cluster.kerberos.realm }}"
+                realm: "{{ kerberos.realm }}"
                 kdc_host: "{{ inventory_hostname }}"
                 admin_server_host: "{{ inventory_hostname }}"
                 executable_search_paths: "/usr/bin, /bin"
@@ -108,10 +106,10 @@
 
 - name: update Cluster configuration, add Kerberos configuration
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}
+    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}
     method: PUT
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     body: "{{ api_krb_conf|to_json }}"
     status_code: 200
     force_basic_auth: yes
@@ -122,10 +120,10 @@
 
 - name: stop the services
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/services
+    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/services
     method: PUT
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     body: '{"RequestInfo":{"context":"Stopping services"},"Body":{"ServiceInfo":{"state":"INSTALLED"}}}'
     force_basic_auth: yes
     status_code: 200,202
@@ -140,7 +138,7 @@
     port: "{{ item.value }}"
     state: stopped
     host: "{{ inventory_hostname }}"
-  with_dict: "{{ hdp.ports }}"
+  with_dict: "{{ ports }}"
   when: not (startat > 5)
 
 - name: prepare API payload for KDC admin
@@ -153,10 +151,10 @@
 
 - name:  add KDC admin 
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/credentials/kdc.admin.credential
+    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/credentials/kdc.admin.credential
     method: POST
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     body: "{{ api_add_kdcadmin | to_json  }}"
     status_code: 201
     force_basic_auth: yes
@@ -167,10 +165,10 @@
 
 - name: set the Kerberos Descriptor 
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/artifacts/kerberos_descriptor
+    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/artifacts/kerberos_descriptor
     method: POST
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     body:  "{{ file_ds.stdout | to_json }}"
     status_code: 201
     force_basic_auth: yes
@@ -182,10 +180,10 @@
 
 - name: Install the Kerberos service
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/services/KERBEROS
+    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/services/KERBEROS
     method: PUT
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     body: '{"RequestInfo":{"context":"Installing Kerberos service"},"Body":{"ServiceInfo":{"state":"INSTALLED"} } }'
     status_code: 200
     force_basic_auth: yes
@@ -200,16 +198,16 @@
       session_attributes:
         kerberos_admin:
           principal: admin/admin
-          password: "{{ hdp.cluster.kerberos.password }}"
+          password: "{{ ambari.password }}"
       Clusters:
         security_type: KERBEROS
 
-- name: enable Kerberos on cluster {{ hdp.cluster.name }}
+- name: enable Kerberos on cluster {{ cluster.name }}
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}
+    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}
     method: PUT
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     body:  "{{ api_enable_kerberos | to_json  }}"
     status_code: 202
     force_basic_auth: yes
@@ -224,10 +222,10 @@
 
 - name: install the Kerberos client
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/host_components?HostRoles/state=INIT
+    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/host_components?HostRoles/state=INIT
     method: PUT
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     body: '{"RequestInfo":{"context":"Installing Kerberos client"},"Body":{"HostRoles":{"state":"INSTALLED"}}}'
     status_code: 200,202
     force_basic_auth: yes
@@ -238,10 +236,10 @@
 
 - name: re-start all services
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/services
+    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/services
     method: PUT
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari.password }}"
     body: '{"RequestInfo":{"context":"Starting services"},"Body":{"ServiceInfo":{"state":"STARTED"}}}'
     status_code: 202
     force_basic_auth: yes
@@ -256,5 +254,5 @@
     port: "{{ item.value }}"
     host: "{{ inventory_hostname }}"
     timeout: 600
-  with_dict: "{{ hdp.ports }}"
+  with_dict: "{{ ports }}"
   when: not (startat > 11)
