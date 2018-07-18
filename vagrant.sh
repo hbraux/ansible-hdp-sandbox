@@ -84,18 +84,6 @@ cat >vagrant.yml <<EOF
         - restart sshd
       when: password is not match ("ssh-rsa .*")
 
-    - name: clone the git repo
-      git:
-        repo: https://github.com/{{ github_repo }}.git
-        dest: /home/{{ username }}/git/{{ github_repo }}
-
-    - name: update the owner
-      file:
-        path: /home/{{ username }}/git
-        owner: "{{ username }}"
-        group: users
-        recurse: yes
-
     - name: get uname
       shell: uname -n | sed 's/[a-z0-9]*\.//'
       register: uname_cmd
@@ -109,6 +97,18 @@ cat >vagrant.yml <<EOF
           Host *.{{ uname_cmd.stdout }}
             StrictHostKeyChecking no
             UserKnownHostsFile=/dev/null
+
+    - name: clone the git repo
+      git:
+        repo: https://github.com/{{ github_repo }}.git
+        dest: /home/{{ username }}/git/{{ github_repo }}
+
+    - name: update the owner
+      file:
+        path: /home/{{ username }}/git
+        owner: "{{ username }}"
+        group: users
+        recurse: yes
 
     - set_fact:
         local_epel: http://{{ centos_mirror }}/fedora/epel/\$releasever/\$basearch/
