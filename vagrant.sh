@@ -1,10 +1,11 @@
 #!/bin/bash
 # This generic script is downloaded and executed by vagrant
-# It install ansible, run the included playbook which creates the working user and clone the Git repo, the run setup.sh from the repo is exists
-# Input argument:s 
+# It installs ansible, runs the included playbook which creates the working
+# user and clones the Git repo, then runs setup.sh from the repo
+# Input arguments: 
 #  $1  github repository (relative path)
 #  $2  Unix user to be created
-#  $3  password or public SSH key 
+#  $3  password or public SSH key (id-rsa xxx)
 #  $4  fqdn or @IP of a CentOS mirror (optional)
 
 
