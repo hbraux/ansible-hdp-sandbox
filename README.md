@@ -28,17 +28,19 @@ Note that official Hortonworks ansible scripts are availabe here https://github.
 Option A: create a VM for Windows 
 * install [Virtualbox](https://www.virtualbox.org/)
 * install [Vagrant](https://www.vagrantup.com/downloads.html)
-* optionnaly install [Proxy plugin](https://github.com/tmatilai/vagrant-proxyconf) for Vagrant and set http_host in Windows
-* download `Vagrantfile` from the Git repo (only that file is needed) and save it to a work directory
-* create SSH keys for Putty using [Puttygen](https://www.ssh.com/ssh/putty/windows/puttygen) and save the public key as `key.pub` in the work directory
-* Open a CMD prompt, go to the work and directory run `vagrant up`
-* Connect with putty to 192.168.56.3 using the private key file and your Windows's username. The UNIX user created has sudo access
-* Connect to http://192.168.56.3:8080/ for ambari
-* Add line `192.168.56.3 hdp.hostonly.com` to your Windows host file
+* install [Proxy plugin](https://github.com/tmatilai/vagrant-proxyconf): `vagrant plugin install vagrant-proxyconf`
+* optionnaly set environment variables VAGRANT_HTTP_PROXY, VAGRANT_HTTPS_PROXY and VAGRANT_NO_PROXY in Windows. If you have a prefered CentOS mirror set also the environment variable CENTOS_MIRROR to the mirror's fqdn
+* download `Vagrantfile` from the Git repo and save it to a work directory
+* Open a CMD prompt, go to the work directory, run `vagrant up` and wait for VM to be ready
+* Add line `192.168.56.3 hdp.hostonly.com` to your Windows host file (adapt IP if needed)
+* Connect with putty to the guest VM using your Windows's username and the defaut password in Vagrantfile.
+* Connect to http://hdp.hostonly.com:8080/ for ambari
+
 
 Option B: existing Linux environment
 * install ansible 
 * clone the git repo
-* run ansible-playbook install.yml
+* run setup.sh
+
 
 

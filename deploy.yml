@@ -10,9 +10,9 @@
        url: http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5
        password: nimda
   roles:
-    - {role: 'jdk', tags: 'pre'}
-    - {role: 'kerberos', tags: 'pre'}
-    - {role: 'postgresql', tags: 'pre'}
-    - {role: 'ambari', tags: 'pre'}
-    - {role: 'hdp',  tags: 'main'}
+    - { role: 'jdk', tags: 'pre' }
+    - { role: 'kerberos', tags: 'pre' }
+    - { role: 'postgresql', tags: 'pre' }
+    - { role: 'ambari', tags: 'pre' }
+    - { role: 'hdp',  tags: 'main' }
 
