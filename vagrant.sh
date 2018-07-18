@@ -133,7 +133,6 @@ cat >vagrant.yml <<EOF
     - name: install rpm files
       yum:
         name: "{{ rpm_files.files | map(attribute='path') }}"
-      with_items: "{{ rpm_files.files }}"
       when: rpm_files.matched > 0
 
   handlers:
