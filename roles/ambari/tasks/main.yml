@@ -11,10 +11,7 @@
 
 - name: install Ambari
   yum:
-    name: "{{ item }}"
-  with_items:
-    - ambari-server
-    - ambari-agent
+    name: ambari-server,ambari-agent
 
 - name : Create folder /opt/ambari
   file:

@@ -1,6 +1,6 @@
 BOX_NAME = "hdp"
 BOX_DOMAIN = "hostonly.com"
-BOX_RAM = "8192"  
+BOX_RAM = "8192"
 BOX_CPU = "4" 
 BOX_IP = "192.168.56.3"
 BOX_NOSYNC = true
