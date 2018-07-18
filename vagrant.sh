@@ -45,19 +45,6 @@ cat >vagrant.yml <<EOF
         - git
         - emacs-nox
 
-    - name: check for host rpm files
-      find:
-        path: /vagrant
-        patterns: "*.rpm"
-      ignore_errors: yes
-      register: rpm_files
-
-    - name: install rpm files
-      yum:
-        name: "{{ item.path }}"
-      with_items: "{{ rpm_files.files }}"
-      when: rpm_files.matched > 0
-
     - name: ensure that wheel group exist
       group:
         name: wheel
@@ -133,6 +120,19 @@ cat >vagrant.yml <<EOF
         description: EPEL YUM repo
         baseurl: "{{ local_epel |default('https://download.fedoraproject.org/pub/epel/\$releasever/\$basearch/') }}"
         gpgcheck: no
+
+    - name: check for host rpm files
+      find:
+        path: /vagrant
+        patterns: "*.rpm"
+      ignore_errors: yes
+      register: rpm_files
+
+    - name: install rpm files
+      yum:
+        name: "{{ item.path }}"
+      with_items: "{{ rpm_files.files }}"
+      when: rpm_files.matched > 0
 
   handlers:
     - name: restart sshd
