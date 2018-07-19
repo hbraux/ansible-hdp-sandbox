@@ -142,12 +142,13 @@ EOF
 echo "(vagrant.sh) executing Playbook vagrant.yml"
 ansible-playbook vagrant.yml -e github_repo=$1 -e username=$2 -e "password=\"$3\"" -e centos_mirror="$4" -i localhost,
 
-setup=$(find /home/$2/git/$1 -name setup.sh | head -1)
+user=$2
+setup=$(find /home/$user/git/$1 -name setup.sh | head -1)
 if [[ -x $setup ]]
-then user=$2; shift; shift; shift;
+then shift; shift; shift;
      [[ ${1:0:2} == -- ]] || shift
      echo "(vagrant.sh) executing as $user: $setup $*"
-     su - $user -c $setup $*
+     su - $user -c "$setup $*"
 fi
 
 echo "(vagrant.sh) all done"
