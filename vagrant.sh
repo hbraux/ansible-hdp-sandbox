@@ -23,7 +23,7 @@ then
   grep -q $4 /etc/yum.repos.d/CentOS-Base.repo 
   if [[ $# -ne 0 ]]
   then echo "(vagrant.sh) setting $4 as baseurl in CentOS-Base.repo"
-       sed -i -e "s~gpgcheck=1~gpgcheck=0~g;s~^mirrorlist=.*~~g;s~#baseurl=http://mirror.centos.org~baseurl=http://$4~g" /etc/yum.repos.d/CentOS-Base.repo
+       sed -i -e "s~gpgcheck=1~gpgcheck=0\nproxy=_none_~g;s~^mirrorlist=.*~~g;s~#baseurl=http://mirror.centos.org~baseurl=http://$4~g" /etc/yum.repos.d/CentOS-Base.repo
   fi
 fi
 

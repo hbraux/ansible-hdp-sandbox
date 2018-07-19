@@ -12,7 +12,6 @@ Vagrant.configure("2") do |config|
         if File.file?("key.pub")
        	  password = File.readlines("key.pub").first.strip
 	end
-	config.proxy.enabled = { yum: false }
 	config.vm.define BOX_NAME
 	config.vm.box = "centos/7"
 	config.vm.network :private_network, ip: BOX_IP
