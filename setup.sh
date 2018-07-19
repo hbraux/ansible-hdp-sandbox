@@ -1,4 +1,8 @@
 #!/bin/bash
+# HDP installation script
+# following optional arguments are accepted
+# --tags xxx : ansible tags
+# --host xxx : target host, by default localhost
 
 if [[ -n $1 ]]
 then host=$(grep $1 /etc/hosts | head -1 |  awk '{print $2}')

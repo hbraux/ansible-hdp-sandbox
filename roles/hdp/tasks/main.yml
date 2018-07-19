@@ -67,12 +67,12 @@
 - name: check tags
   shell: /bin/true
   register: standard_tags
-  tags: ['pre', 'post', 'main']
+  tags: ['prepare', 'deploy']
   
 - name: DESTROYING CLUSTER
   include_tasks: destroy_cluster.yml 
   when: no_tags is not defined and standard_tags is not defined
-  tags: kill
+  tags: destroy
 
 
 

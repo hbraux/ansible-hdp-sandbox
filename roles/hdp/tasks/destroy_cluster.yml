@@ -3,7 +3,7 @@
 - name: WARNING, all data will be lost. Type CTRL-C to stop the process
   wait_for:
     timeout: 10
-  tags: kill
+  tags: destroy
 
 - name: stop the services
   uri:
@@ -18,7 +18,7 @@
     headers:
       X-Requested-By: "ambari"
   ignore_errors: true
-  tags: kill
+  tags: destroy
   
 - name: wait for services to stop
   wait_for:
@@ -28,7 +28,7 @@
     host: "{{ inventory_hostname }}"
     timeout: 300
   with_dict: "{{ ports }}"
-  tags: kill
+  tags: destroy
 
 - name: stop ambari
   service:
@@ -38,34 +38,34 @@
     - ambari-server
     - ambari-agent
   ignore_errors: true
-  tags: kill
+  tags: destroy
 
 - name: drop Hive database
   postgresql_db:
     name: hive
     state: absent
   become_user: postgres
-  tags: kill
+  tags: destroy
 
 - name: drop Ranger database
   postgresql_db:
     name: ranger
     state: absent
   become_user: postgres
-  tags: kill
+  tags: destroy
 
 - name: drop Ambari database
   postgresql_db:
     name: ambari
     state: absent
   become_user: postgres
-  tags: kill
+  tags: destroy
 
 - name: cleanup /opt/ambari
   file:
     path: /opt/ambari/
     state: absent
-  tags: kill
+  tags: destroy
 
 # to be sure to cleanup Ambari's cache and data
 - name: uninstall Ambari
@@ -75,19 +75,19 @@
   with_items:
     - ambari-server
     - ambari-agent
-  tags: kill
+  tags: destroy
 
 - name: cleanup keytabs
   file:
     path: /etc/security/keytabs/
     state: absent
-  tags: kill
+  tags: destroy
 
 - name: destroy Kerberos database
   shell: kdb5_util destroy -f
   args:
     removes: /var/kerberos/krb5kdc/principal
-  tags: kill
+  tags: destroy
 
 - name: cleanup hdfs data and solr
   file:
@@ -96,7 +96,7 @@
   with_items:
     - /hadoop
     - /opt/ambari_infra_solr/data
-  tags: kill
+  tags: destroy
 
 - name: cleanup other data
   file:
@@ -112,7 +112,7 @@
     - hive2
     - ranger
     - zookeeper
-  tags: kill
+  tags: destroy
 
 - name: cleanup logs
   file:
@@ -131,14 +131,14 @@
     - ambari-infra-solr
     - zookeeper
     - hive-hcatalog
-  tags: kill
+  tags: destroy
 
 
 - name: cleanup /tmp
   shell: rm -fr /tmp/Jetty* /tmp/krb* /tmp/ambari* /tmp/hadoop* /tmp/hsperfdata* /tmp/hbase* /tmp/hive* 
   args:
     warn: false
-  tags: kill
+  tags: destroy
 
 - name: remove users and groups
   user:
@@ -157,7 +157,7 @@
     - zookeeper
     - ambari-qa
   when: false
-  tags: kill
+  tags: destroy
 
 - debug:
     msg: IT IS RECOMMENDED TO REBOOT SERVER NOW

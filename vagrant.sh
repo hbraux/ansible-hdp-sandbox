@@ -1,24 +1,25 @@
 #!/bin/bash
-# This generic script is downloaded and executed by vagrant
+# This generic script is downloaded and executed by Vagrant
 # It installs ansible, runs the included playbook which creates the working
-# user and clones the Git repo, then runs setup.sh from the repo
+# user and clones the Git repo, then runs script setup.sh from the repo
 # Input arguments: 
 #  $1  github repository (relative path)
 #  $2  Unix user to be created
 #  $3  password or public SSH key (id-rsa xxx)
 #  $4  fqdn or @IP of a CentOS mirror (optional)
-
+#  $5  setup.sh options (optional, must be of form --tag val ..)
 
 if [[ $# -lt 3 ]]
-then echo "(vagrant.sh) expecting GITHUB_REPO USERNAME PASSWORD [CENTOS_MIRROR]"; exit 1
+then echo "(vagrant.sh) expecting GITHUB_REPO USERNAME PASSWORD [CENTOS_MIRROR] [SETUP_OPTS] "; exit 1
 fi
 
 if [[ -n $http_proxy ]] 
 then echo "(vagrant.sh) using proxy variables http_proxy=$http_proxy https_proxy=$https_proxy no_proxy=$no_proxy"
 fi
 
-if [[ -n $4 ]]
+if [[ -n $4 && ${4:0:2} != "--" ]]
 then
+  
   grep -q $4 /etc/yum.repos.d/CentOS-Base.repo 
   if [[ $# -ne 0 ]]
   then echo "(vagrant.sh) setting $4 as baseurl in CentOS-Base.repo"
@@ -140,12 +141,14 @@ EOF
 
 echo "(vagrant.sh) executing Playbook vagrant.yml"
 ansible-playbook vagrant.yml -e github_repo=$1 -e username=$2 -e "password=\"$3\"" -e centos_mirror="$4" -i localhost,
-echo ""
 
 setup=$(find /home/$2/git/$1 -name setup.sh | head -1)
 if [[ -x $setup ]]
-then echo "(vagrant.sh) executing $setup as user $2"
-     su - $2 -c $setup
+then opts=""
+     [ ${4:0:2} == -- ]] && opts="$4"
+     [ ${5:0:2} == -- ]] && opts="$opts $5"
+     echo "(vagrant.sh) executing '$setup $opts' as user $2"
+     su - $2 -c $setup $opts
 fi
 
 echo "(vagrant.sh) all done"
