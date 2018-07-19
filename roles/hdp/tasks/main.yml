@@ -67,7 +67,7 @@
 - name: check tags
   shell: /bin/true
   register: standard_tags
-  tags: ['prepare', 'deploy']
+  tags: ['prepare', 'install']
   
 - name: DESTROYING CLUSTER
   include_tasks: destroy_cluster.yml 

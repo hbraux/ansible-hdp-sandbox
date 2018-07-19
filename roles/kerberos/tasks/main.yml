@@ -1,10 +1,6 @@
 - name: install Kerberos
   yum:
-    name: "{{ item }}"
-  with_items:
-    - krb5-server
-    - krb5-libs
-    - krb5-workstation
+    name: krb5-server,krb5-libs,krb5-workstation
 
 - name: update krb5.conf
   template:

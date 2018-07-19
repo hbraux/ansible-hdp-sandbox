@@ -1,11 +1,12 @@
 #!/bin/bash
 # HDP installation script
 # following optional arguments are accepted
-# --host xxx : target host, by default localhost
-# --tags xxx : ansible tags
+# -i xxx     : inventory host, by default localhost
+# -t yyy ..  : any ansible-playbook options likes tags, etc
 
 
-if [[ $1 == --host ]]
+
+if [[ $1 == -i ]]
 then host=$(grep $2 /etc/hosts | head -1 |  awk '{print $2}')
      echo "executing playbook on $host"
      opts="-i $host,"
@@ -14,7 +15,7 @@ then host=$(grep $2 /etc/hosts | head -1 |  awk '{print $2}')
 else opts="--connection=local -i $(uname -n),"
 fi
 
-[[ $1 == --tags ]] && opts="$opts $1 $2"
+opts="$opts $*"
 
 # [[ -n  $http_proxy ]] && opts="$opts -e http_proxy=$http_proxy -e https_proxy=$http_proxy -e no_proxy=$no_proxy"
 

@@ -67,28 +67,6 @@
     state: absent
   tags: destroy
 
-# to be sure to cleanup Ambari's cache and data
-- name: uninstall Ambari
-  yum:
-    name: "{{ item }}"
-    state: absent
-  with_items:
-    - ambari-server
-    - ambari-agent
-  tags: destroy
-
-- name: cleanup keytabs
-  file:
-    path: /etc/security/keytabs/
-    state: absent
-  tags: destroy
-
-- name: destroy Kerberos database
-  shell: kdb5_util destroy -f
-  args:
-    removes: /var/kerberos/krb5kdc/principal
-  tags: destroy
-
 - name: cleanup hdfs data and solr
   file:
     path: "{{ item }}/"
@@ -133,6 +111,27 @@
     - hive-hcatalog
   tags: destroy
 
+# to be sure to cleanup Ambari's cache and data
+- name: uninstall Ambari
+  yum:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - ambari-server
+    - ambari-agent
+  tags: destroy
+
+- name: cleanup keytabs
+  file:
+    path: /etc/security/keytabs/
+    state: absent
+  tags: destroy
+
+- name: destroy Kerberos database
+  shell: kdb5_util destroy -f
+  args:
+    removes: /var/kerberos/krb5kdc/principal
+  tags: destroy
 
 - name: cleanup /tmp
   shell: rm -fr /tmp/Jetty* /tmp/krb* /tmp/ambari* /tmp/hadoop* /tmp/hsperfdata* /tmp/hbase* /tmp/hive* 

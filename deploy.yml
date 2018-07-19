@@ -14,9 +14,6 @@
       subversion: 2.6.4.0-91
       url: http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.4.0
       preinstall: yes
-    hdp_utils:
-      version: 1.1.0.22
-      url: http://public-repo-1.hortonworks.com/HDP-UTILS-1.1.0.22/repos/centos7
     cluster:
       name: sandbox
       ranger_password: admin123
@@ -26,5 +23,5 @@
     - { role: 'kerberos', tags: 'prepare' }
     - { role: 'postgresql', tags: 'prepare' }
     - { role: 'ambari', tags: 'prepare' }
-    - { role: 'hdp',  tags: 'deploy' }
+    - { role: 'hdp',  tags: 'install' }
 

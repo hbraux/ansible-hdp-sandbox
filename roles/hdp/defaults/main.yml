@@ -9,6 +9,8 @@ packages:
   - hadoop-yarn-timelineserver
   - hadoop-mapreduce
   - hadoop-mapreduce-historyserver
+  - hadoop-hdfs
+  - hadoop-yarn
   - hbase
   - hive-server
   - hive-webhcat
