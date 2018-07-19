@@ -118,6 +118,7 @@ cat >vagrant.yml <<EOF
         description: EPEL YUM repo
         baseurl: "{{ local_epel |default('https://download.fedoraproject.org/pub/epel/\$releasever/\$basearch/') }}"
         gpgcheck: no
+        proxy: _none_
 
     - name: check for rpm files in /vagrant
       find:
@@ -147,7 +148,7 @@ setup=$(find /home/$user/git/$1 -name setup.sh | head -1)
 if [[ -x $setup ]]
 then shift; shift; shift;
      [[ ${1:0:2} == -- ]] || shift
-     echo "(vagrant.sh) executing as $user: $setup $*"
+     echo "(vagrant.sh) executing as $user $setup $*"
      su - $user -c "$setup $*"
 fi
 
