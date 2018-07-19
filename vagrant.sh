@@ -146,7 +146,7 @@ setup=$(find /home/$2/git/$1 -name setup.sh | head -1)
 if [[ -x $setup ]]
 then user=$2; shift; shift; shift;
      [[ ${1:0:2} == -- ]] || shift
-     echo "(vagrant.sh) executing '$setup $*' as user $user"
+     echo "(vagrant.sh) executing as $user: $setup $*"
      su - $user -c $setup $*
 fi
 
