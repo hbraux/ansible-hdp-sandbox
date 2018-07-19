@@ -144,10 +144,10 @@ ansible-playbook vagrant.yml -e github_repo=$1 -e username=$2 -e "password=\"$3\
 
 setup=$(find /home/$2/git/$1 -name setup.sh | head -1)
 if [[ -x $setup ]]
-then shift; shift; shift;
+then user=$2; shift; shift; shift;
      [[ ${1:0:2} == -- ]] || shift
-     echo "(vagrant.sh) executing '$setup $*' as user $2"
-     su - $2 -c $setup $*
+     echo "(vagrant.sh) executing '$setup $*' as user $user"
+     su - $user -c $setup $*
 fi
 
 echo "(vagrant.sh) all done"
