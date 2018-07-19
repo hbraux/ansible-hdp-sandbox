@@ -5,6 +5,7 @@ BOX_CPU = "4"
 BOX_IP = "192.168.56.3"
 BOX_NOSYNC = true
 GITHUB_REPO = "hbraux/ansible-hdp-sandbox"
+SETUP_OPTS=""
 password = "password"
 
 Vagrant.configure("2") do |config|
@@ -23,7 +24,7 @@ Vagrant.configure("2") do |config|
 		vb.customize ["modifyvm", :id, "--cpus", BOX_CPU]
 		vb.customize ["modifyvm", :id, "--audio", "none"]
 	end
-	config.vm.provision 'shell', inline: "curl -s https://raw.githubusercontent.com/#{GITHUB_REPO}/master/vagrant.sh | bash -s #{GITHUB_REPO} #{ENV['USERNAME']} '#{password}' #{ENV['CENTOS_MIRROR']}"
+	config.vm.provision 'shell', inline: "curl -s https://raw.githubusercontent.com/#{GITHUB_REPO}/master/vagrant.sh | bash -s #{GITHUB_REPO} #{ENV['USERNAME']} '#{password}' #{ENV['CENTOS_MIRROR']} #{SETUP_OPTS}"
 end
 
 

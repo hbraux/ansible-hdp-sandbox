@@ -7,17 +7,17 @@
 #  $2  Unix user to be created
 #  $3  password or public SSH key (id-rsa xxx)
 #  $4  fqdn or @IP of a CentOS mirror (optional)
-#  $5  setup.sh options (optional, must be of form --tag val ..)
+#  $5 ... setup.sh options must be of form --opt value
 
 if [[ $# -lt 3 ]]
-then echo "(vagrant.sh) expecting GITHUB_REPO USERNAME PASSWORD [CENTOS_MIRROR] [SETUP_OPTS] "; exit 1
+then echo "(vagrant.sh) expecting GITHUB_REPO USERNAME PASSWORD [CENTOS_MIRROR] [SETUP_OPTS..] "; exit 1
 fi
 
 if [[ -n $http_proxy ]] 
 then echo "(vagrant.sh) using proxy variables http_proxy=$http_proxy https_proxy=$https_proxy no_proxy=$no_proxy"
 fi
 
-if [[ -n $4 && ${4:0:2} != "--" ]]
+if [[ -n $4 && ${4:0:2} != -- ]]
 then
   
   grep -q $4 /etc/yum.repos.d/CentOS-Base.repo 
@@ -144,11 +144,10 @@ ansible-playbook vagrant.yml -e github_repo=$1 -e username=$2 -e "password=\"$3\
 
 setup=$(find /home/$2/git/$1 -name setup.sh | head -1)
 if [[ -x $setup ]]
-then opts=""
-     [[ ${4:0:2} == -- ]] && opts="$4"
-     [[ ${5:0:2} == -- ]] && opts="$opts $5"
-     echo "(vagrant.sh) executing '$setup $opts' as user $2"
-     su - $2 -c $setup $opts
+then shift; shift; shift;
+     [[ ${1:0:2} == -- ]] || shift
+     echo "(vagrant.sh) executing '$setup $*' as user $2"
+     su - $2 -c $setup $*
 fi
 
 echo "(vagrant.sh) all done"
