@@ -14,6 +14,8 @@ then host=$(grep $2 /etc/hosts | head -1 |  awk '{print $2}')
 else opts="--connection=local -i $(uname -n),"
 fi
 
+[[ $1 == --tags ]] && opts="$opts $1 $2"
+
 # [[ -n  $http_proxy ]] && opts="$opts -e http_proxy=$http_proxy -e https_proxy=$http_proxy -e no_proxy=$no_proxy"
 
 
