@@ -5,7 +5,7 @@
 
 - name: update .bashrc
   lineinfile:
-    path: /home/{{ ansible_ssh_user }}/env-HDP.sh
+    path: /home/{{ ansible_ssh_user }}/.bashrc
     line: ". env-HDP.sh"
 
 

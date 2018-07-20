@@ -1,5 +1,5 @@
 echo "***********************************************************************
-* Virtualbox VM CentOS 7.5 - HDP {{ hdp_version }} - Ambari - Kerberos
+* Virtualbox VM CentOS - HDP {{ hdp_version }} 
 *
 * Ambari: http://{{ inventory_hostname }}:8080/ (admin/{{ ambari_password }})
 ***********************************************************************"
@@ -18,3 +18,6 @@ export OOZIE_URL="http://{{ inventory_hostname }}:11000/oozie"
 
 # Hadoop aliases
 alias bee='/usr/bin/beeline -u ${SITE_HIVEURL}'
+
+# update prompt
+PS1='\[\033[1;32m\]\u@\h\[\033[0;34m\]:\w \$ \[\033[0m\]'
