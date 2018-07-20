@@ -14,11 +14,11 @@
 
 [realms]
   {{ kerberos.realm }} = {
-    admin_server = {{ ansible_hostname }}.{{ kerberos.realm|lower() }}
-    kdc = {{ ansible_hostname }}.{{ kerberos.realm|lower() }}
+    admin_server = {{ ansible_hostname }}.{{ kerberos_realm|lower() }}
+    kdc = {{ ansible_hostname }}.{{ kerberos_realm|lower() }}
   }
 
 [domain_realm]
-  .{{ kerberos.realm|lower() }} = {{ kerberos.realm }}
+  .{{ kerberos_realm|lower() }} = {{ kerberos_realm }}
 
 
