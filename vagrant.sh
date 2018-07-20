@@ -82,9 +82,9 @@ cat >vagrant.yml <<EOF
         - restart sshd
       when: password is not match ("ssh-rsa .*")
 
-    - name: get uname
+    - name: get domain
       shell: uname -n | sed 's/[a-z0-9]*\.//'
-      register: uname_cmd
+      register: domain_cmd
 
     - name: update .ssh/config
       blockinfile:
@@ -92,7 +92,7 @@ cat >vagrant.yml <<EOF
         create: yes
         owner: "{{ username }}"
         block: |
-          Host *.{{ uname_cmd.stdout }}
+          Host *.{{ domain_cmd.stdout }}
             StrictHostKeyChecking no
             UserKnownHostsFile=/dev/null
 
@@ -119,6 +119,24 @@ cat >vagrant.yml <<EOF
         baseurl: "{{ local_epel |default('https://download.fedoraproject.org/pub/epel/\$releasever/\$basearch/') }}"
         gpgcheck: no
         proxy: _none_
+
+    - name: get hostname
+      shell: uname -n
+      register: hostname_cmd
+
+    - name: get host-only IP from eth1
+      shell: ip address show dev eth1 | sed -n  's~^.*inet \([0-9\.]*\)/.*$~\1~p'
+      register: ip_cmd
+
+    - set_fact:
+        ip: "{{ ip_cmd.stdout }}"
+        fqdn: "{{  hostname_cmd.stdout }}"
+        
+    - name: update /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        regexp: "^.*{{ fqdn }}.*$"
+        line: "{{ ip }} {{ fqdn }}"
 
     - name: check for rpm files in /vagrant
       find:

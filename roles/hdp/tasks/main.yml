@@ -1,4 +1,4 @@
-- name: check if version HDP-{{ hdp.subversion }} is already registered 
+- name: check if version HDP-{{ hdp_version }} is already registered 
   uri:
     url: http://localhost:8080/api/v1/version_definitions/1
     method: GET
@@ -14,7 +14,7 @@
 
 - name: check if cluster is already created
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}
+    url: http://localhost:8080/api/v1/clusters/{{ cluster_name }}
     method: GET
     user: admin
     password: "{{ ambari_password }}"
@@ -41,7 +41,7 @@
     url: http://localhost:6080/service/public/api/repository
     method: GET
     user: admin
-    password: "{{ cluster.ranger_password }}"
+    password: "{{ ranger_password }}"
     status_code: 200
     return_content: yes
     force_basic_auth: yes
@@ -53,11 +53,6 @@
 - name: ENABLING RANGER
   include_tasks: enable_ranger.yml
   when: kerberos is defined and request_content.totalCount is defined and request_content.totalCount == 0
-
-- name: create environment file for hdp
-  template:
-    src: env-HDP.j2
-    dest: $HOME/env.d/env-HDP.sh
 
 # Ansible Workaround to prevent the kill task beeing executed
 - name: check tags

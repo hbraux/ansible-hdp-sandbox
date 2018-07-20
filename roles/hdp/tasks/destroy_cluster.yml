@@ -7,7 +7,7 @@
 
 - name: stop the services
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/services
+    url: http://localhost:8080/api/v1/clusters/{{ cluster_name }}/services
     method: PUT
     user: admin
     password: "{{ ambari.password }}"

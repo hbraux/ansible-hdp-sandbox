@@ -64,18 +64,18 @@
             - name: HDFS_CLIENT
             - name: RESOURCEMANAGER
             - name: NODEMANAGER
-            - name: YARN_CLIENT
-            - name: HISTORYSERVER
-            - name: APP_TIMELINE_SERVER
-            - name: HBASE_MASTER
-            - name: HBASE_REGIONSERVER
-            - name: HCAT
-            - name: HIVE_SERVER
-            - name: HIVE_METASTORE
-            - name: INFRA_SOLR
-            - name: RANGER_ADMIN
-            - name: RANGER_USERSYNC
-            #- name: RANGER_TAGSYNC
+          #  - name: YARN_CLIENT
+          #  - name: HISTORYSERVER
+          #  - name: APP_TIMELINE_SERVER
+          #  - name: HBASE_MASTER
+          #  - name: HBASE_REGIONSERVER
+          #  - name: HCAT
+          #  - name: HIVE_SERVER
+          #  - name: HIVE_METASTORE
+          #  - name: INFRA_SOLR
+          #  - name: RANGER_ADMIN
+          #  - name: RANGER_USERSYNC
+          #  - name: RANGER_TAGSYNC
       configurations:
         - hive-site:
             properties:
@@ -100,9 +100,9 @@
               create_db_dbuser: false
               ranger_user : ranger
               db_password: ranger123
-              admin_password: "{{ cluster.ranger_password }}"
+              admin_password: "{{ ranger_password }}"
               ranger_admin_username: admin
-              ranger_admin_password: "{{ cluster.ranger_password }}"
+              ranger_admin_password: "{{ ranger_password }}"
               ranger.authentication.method: UNIX
               is_solrCloud_enabled: true
         - ranger-admin-site:
@@ -135,9 +135,9 @@
           hosts:
             -  fqdn: "{{ inventory_hostname }}" 
 
-- name: submit creation request for cluster {{ cluster.name }}
+- name: submit creation request for cluster {{ cluster_name }}
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}
+    url: http://localhost:8080/api/v1/clusters/{{ cluster_name }}
     method: POST
     user: admin
     password: "{{ ambari_password }}"

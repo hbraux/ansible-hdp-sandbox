@@ -1,3 +1,14 @@
+- name: get host-only IP from eth1
+  shell: ip address show dev eth1 | sed -n  's~^.*inet \([0-9\.]*\)/.*$~\1~p'
+  register: getip
+
+- name: check /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: "^.*{{ inventory_hostname }}.*$"
+    line: "{{ getip.stdout }} {{ inventory_hostname }}"
+
+  
 - name: install Ambari dependencies
   yum:
     name: unzip,net-tools,initscripts
