@@ -1,15 +1,15 @@
 echo "***********************************************************************
-* Virtualbox VM CentOS 7.5 - HDP {{ hdp.version }} - Ambari - Kerberos
+* Virtualbox VM CentOS 7.5 - HDP {{ hdp_version }} - Ambari - Kerberos
 *
-* Ambari: http://{{ inventory_hostname }}:8080/ (admin/{{ ambari.password }})
+* Ambari: http://{{ inventory_hostname }}:8080/ (admin/{{ ambari_password }})
 ***********************************************************************"
 
 # Hadoop Site environment file
 export SITE_FS='hdfs://{{ inventory_hostname }}:8020'
 export SITE_METASTORE='thrift://localhost:9083'
-export SITE_DESC={{ cluster.name }}
-export SITE_REALM={{ kerberos.realm }}
-export SITE_LDAP={{ kerberos.realm }}
+export SITE_DESC={{ cluster_name }}
+export SITE_REALM={{ kerberos_realm }}
+export SITE_LDAP=$SITE_REALM
 export SITE_QUEUE='default'
 export SITE_ZOOKEEPER="{{ inventory_hostname }}:2181"
 export SITE_HIVEURL="jdbc:hive2://$SITE_ZOOKEEPER/;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2"

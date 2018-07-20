@@ -1,7 +1,6 @@
 
 - name: deploy.yml
   hosts: all
-  become: yes
   vars:
     kerberos_realm: "{{ ansible_domain | upper }}"
     ambari_url: http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5
@@ -13,9 +12,11 @@
     ranger_password: password
 
   roles:
-    - { role: 'jdk', tags: 'prepare' }
-    - { role: 'kerberos', tags: 'prepare' }
-    - { role: 'postgresql', tags: 'prepare' }
-    - { role: 'ambari', tags: 'prepare' }
-    - { role: 'hdp',  tags: 'install' }
+    - { role: 'jdk', become: yes, tags: 'prepare' }
+    - { role: 'kerberos', become: yes, tags: 'prepare' }
+    - { role: 'postgresql', become: yes, tags: 'prepare' }
+    - { role: 'ambari', become: yes, tags: 'prepare' }
+    - { role: 'client', tags: 'prepare' }
+    - { role: 'hdp',  become: yes, tags: 'install' }
+    
 
