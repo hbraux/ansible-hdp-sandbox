@@ -52,7 +52,7 @@
       Blueprints:
         blueprint_name: ansible
         stack_name: HDP
-        stack_version: "{{ hdp.version }}"
+        stack_version: "{{ hdp_version[0:3] }}"
       host_groups:
         - name: hostgroup1
           cardinality: 1
@@ -117,7 +117,7 @@
     url: http://localhost:8080/api/v1/blueprints/singlenode?validate_topology=false
     method: POST
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     body: "{{ api_blueprint | to_json }}"
     status_code: 201
     force_basic_auth: yes
@@ -129,7 +129,7 @@
   set_fact:
     api_create_cluster:
       blueprint: ansible
-      default_password: "{{ ambari.password }}"
+      default_password: "{{ ambari_password }}"
       host_groups :
         - name: hostgroup1
           hosts:
@@ -140,7 +140,7 @@
     url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}
     method: POST
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     body: "{{ api_create_cluster |to_json  }}"
     status_code: 202
     force_basic_auth: yes

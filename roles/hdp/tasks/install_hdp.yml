@@ -11,22 +11,22 @@
 - name: install HDP repo
   yum_repository:
     name: HDP
-    description: HDP-{{ hdp.version }}
-    baseurl: "{{ hdp.url }}"
+    description: HDP-{{ hdp_version }}
+    baseurl: "{{ hdp_url }}"
     gpgcheck: no
 
 - name: pre-install HDP packages to speedup cluster deployment
   yum:
     name: "{{ packages }}"
-  when: hdp.preinstall is defined and hdp.preinstall
+  when: hdp_preinstall is defined and hdp_preinstall
 
 - name: refresh yum
   yum:
     list: available
 
-- name: download definition file for HDP-{{ hdp.subversion }}
+- name: download definition file for HDP-{{ hdp_version }}
   get_url:
-    url: "{{ hdp.url }}/HDP-{{ hdp.subversion }}.xml"
+    url: "{{ hdp_url }}/HDP-{{ hdp_version }}.xml"
     dest: /opt/HDP.xml
 
 - name: prepare API payload
@@ -35,12 +35,12 @@
       VersionDefinition:
         version_url: "file:/opt/HDP.xml"
 
-- name: create the version HDP-{{ hdp.subversion }}
+- name: create the version HDP-{{ hdp_version }}
   uri:
     url: http://localhost:8080/api/v1/version_definitions
     method: POST
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     body: "{{ api_create_version | to_json }}"
     status_code: 201
     force_basic_auth: yes

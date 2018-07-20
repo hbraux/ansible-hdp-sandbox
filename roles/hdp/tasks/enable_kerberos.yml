@@ -11,7 +11,7 @@
     url: http://localhost:8080/api/v1/stacks/HDP/versions/{{ hdp.version }}/artifacts/kerberos_descriptor
     method: GET
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     status_code: 200
     force_basic_auth: yes
     return_content: yes
@@ -35,7 +35,7 @@
     url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/services/KERBEROS
     method: POST
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     status_code: 201
     force_basic_auth: yes
     headers:
@@ -47,7 +47,7 @@
     url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/services/KERBEROS/components/KERBEROS_CLIENT
     method: POST
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     status_code: 201
     force_basic_auth: yes
     headers:
@@ -59,7 +59,7 @@
     url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/hosts/{{ inventory_hostname }}/host_components/KERBEROS_CLIENT
     method: POST
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     status_code: 201
     force_basic_auth: yes
     body_format: raw
@@ -109,7 +109,7 @@
     url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}
     method: PUT
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     body: "{{ api_krb_conf|to_json }}"
     status_code: 200
     force_basic_auth: yes
@@ -123,7 +123,7 @@
     url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/services
     method: PUT
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     body: '{"RequestInfo":{"context":"Stopping services"},"Body":{"ServiceInfo":{"state":"INSTALLED"}}}'
     force_basic_auth: yes
     status_code: 200,202
@@ -146,7 +146,7 @@
     api_add_kdcadmin:
       Credential:
         principal: admin/admin
-        key:  "{{ ambari.password }}"
+        key:  "{{ ambari_password }}"
         type: persisted
 
 - name:  add KDC admin 
@@ -154,7 +154,7 @@
     url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/credentials/kdc.admin.credential
     method: POST
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     body: "{{ api_add_kdcadmin | to_json  }}"
     status_code: 201
     force_basic_auth: yes
@@ -168,7 +168,7 @@
     url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/artifacts/kerberos_descriptor
     method: POST
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     body:  "{{ file_ds.stdout | to_json }}"
     status_code: 201
     force_basic_auth: yes
@@ -183,7 +183,7 @@
     url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/services/KERBEROS
     method: PUT
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     body: '{"RequestInfo":{"context":"Installing Kerberos service"},"Body":{"ServiceInfo":{"state":"INSTALLED"} } }'
     status_code: 200
     force_basic_auth: yes
@@ -198,7 +198,7 @@
       session_attributes:
         kerberos_admin:
           principal: admin/admin
-          password: "{{ ambari.password }}"
+          password: "{{ ambari_password }}"
       Clusters:
         security_type: KERBEROS
 
@@ -207,7 +207,7 @@
     url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}
     method: PUT
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     body:  "{{ api_enable_kerberos | to_json  }}"
     status_code: 202
     force_basic_auth: yes
@@ -225,7 +225,7 @@
     url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/host_components?HostRoles/state=INIT
     method: PUT
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     body: '{"RequestInfo":{"context":"Installing Kerberos client"},"Body":{"HostRoles":{"state":"INSTALLED"}}}'
     status_code: 200,202
     force_basic_auth: yes
@@ -239,7 +239,7 @@
     url: http://localhost:8080/api/v1/clusters/{{ cluster.name }}/services
     method: PUT
     user: admin
-    password: "{{ ambari.password }}"
+    password: "{{ ambari_password }}"
     body: '{"RequestInfo":{"context":"Starting services"},"Body":{"ServiceInfo":{"state":"STARTED"}}}'
     status_code: 202
     force_basic_auth: yes

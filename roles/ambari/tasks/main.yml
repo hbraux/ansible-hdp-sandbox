@@ -6,7 +6,7 @@
   yum_repository:
     name: ambari
     description: Ambari
-    baseurl: "{{ ambari.url }}"
+    baseurl: "{{ ambari_url }}"
     gpgcheck: no
 
 - name: install Ambari
@@ -51,7 +51,7 @@
     api_update_pass:
       Users:
         user_name: admin
-        password: "{{ ambari.password }}"
+        password: "{{ ambari_password }}"
         old_password: admin
 
 # accept 403 in case password was already changed

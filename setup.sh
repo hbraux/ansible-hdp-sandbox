@@ -1,9 +1,8 @@
 #!/bin/bash
 # HDP installation script
 # following optional arguments are accepted
-# -i xxx     : inventory host, by default localhost
-# -t yyy ..  : any ansible-playbook options likes tags, etc
-
+# -i xxx : inventory host, by default localhost (must be 1st option)
+# any ansible-playbook options 
 
 
 if [[ $1 == -i ]]
@@ -18,7 +17,6 @@ fi
 opts="$opts $*"
 
 # [[ -n  $http_proxy ]] && opts="$opts -e http_proxy=$http_proxy -e https_proxy=$http_proxy -e no_proxy=$no_proxy"
-
 
 cd $(dirname $0)
 ansible-playbook deploy.yml $opts
