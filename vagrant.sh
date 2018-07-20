@@ -7,7 +7,7 @@
 #  $2  Unix user to be created
 #  $3  password or public SSH key (id-rsa xxx)
 #  $4  fqdn or @IP of a CentOS mirror (optional)
-#  $5 ... setup.sh options must be of form --opt value
+#  $5 ... setup.sh options must be of form: -x, -x value or --xxx value
 
 if [[ $# -lt 3 ]]
 then echo "(vagrant.sh) expecting GITHUB_REPO USERNAME PASSWORD [CENTOS_MIRROR] [SETUP_OPTS..] "; exit 1
@@ -17,7 +17,7 @@ if [[ -n $http_proxy ]]
 then echo "(vagrant.sh) using proxy variables http_proxy=$http_proxy https_proxy=$https_proxy no_proxy=$no_proxy"
 fi
 
-if [[ -n $4 && ${4:0:2} != -- ]]
+if [[ -n $4 && ${4:0:1} != - ]]
 then
   
   grep -q $4 /etc/yum.repos.d/CentOS-Base.repo 
@@ -147,7 +147,7 @@ user=$2
 setup=$(find /home/$user/git/$1 -name setup.sh | head -1)
 if [[ -x $setup ]]
 then shift; shift; shift;
-     [[ ${1:0:2} == -- ]] || shift
+     [[ ${1:0:1} == - ]] || shift
      echo "(vagrant.sh) executing as $user $setup $*"
      su - $user -c "$setup $*"
 fi
