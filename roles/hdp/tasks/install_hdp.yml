@@ -8,17 +8,41 @@
   yum:
     name: /tmp/redhat-lsb-4.1-27.el7.centos.1.x86_64.rpm
 
-- name: install HDP repo
+- name: check for local cache of HDP repo
+  stat:
+    path: /vagrant/cache
+  register: hdp_cache
+
+- name: install createrepo tool
+  yum:
+    name: createrepo
+  when: hdp_cache.stat.exists
+
+- name: run createrepo
+  shell: createrepo /vagrant/cache
+  args:
+    creates: /vagrant/cache/repodata
+  when: hdp_cache.stat.exists
+
+- name: create local HDP repository
+  yum_repository:
+    name: HDP
+    description: HDP-{{ hdp_version[0:3] }}
+    baseurl: file:///vagrant/cache
+    gpgcheck: no
+  when: hdp_cache.stat.exists
+
+- name: install packages from cache
+  yum:
+    name: "{{ packages }}"
+  when: hdp_cache.stat.exists
+
+- name: create HDP repository
   yum_repository:
     name: HDP
     description: HDP-{{ hdp_version[0:3] }}
     baseurl: "{{ hdp_url }}"
     gpgcheck: no
-
-- name: pre-install HDP packages to speedup cluster deployment
-  yum:
-    name: "{{ packages }}"
-  when: hdp_preinstall is defined and hdp_preinstall
 
 - name: refresh yum
   yum:

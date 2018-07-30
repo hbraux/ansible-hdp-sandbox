@@ -138,7 +138,7 @@ cat >vagrant.yml <<EOF
         regexp: "^.*{{ fqdn }}.*$"
         line: "{{ ip }} {{ fqdn }}"
 
-    - name: check for rpm files in /vagrant directory
+    - name: check for rpm files in /vagrant 
       find:
         path: /vagrant
         patterns: "*.rpm"
