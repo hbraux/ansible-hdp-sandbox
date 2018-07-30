@@ -11,7 +11,7 @@
 - name: install HDP repo
   yum_repository:
     name: HDP
-    description: HDP-{{ hdp_version }}
+    description: HDP-{{ hdp_version[0:3] }}
     baseurl: "{{ hdp_url }}"
     gpgcheck: no
 
