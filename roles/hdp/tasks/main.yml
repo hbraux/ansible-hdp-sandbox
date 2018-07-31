@@ -33,7 +33,7 @@
 
 - name: ENABLING KERBEROS
   include_tasks: enable_kerberos.yml
-  when: kerberos is defined and request_content.Clusters.security_type is not defined or request_content.Clusters.security_type != 'KERBEROS'
+  when: kerberos is defined and (request_content.Clusters is not defined or (request_content.Clusters.security_type is not defined or request_content.Clusters.security_type != 'KERBEROS'))
 
 # Check if Ranger plugins are enabled (they should automatically create services in Ranger config)
 - name: check if Ranger is configured

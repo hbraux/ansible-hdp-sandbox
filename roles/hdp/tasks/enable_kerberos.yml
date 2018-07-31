@@ -40,7 +40,7 @@
     force_basic_auth: yes
     headers:
       X-Requested-By: "ambari"
-  when: not (startat > 1)
+  when: not (startat|int > 1)
 
 - name: add Kerberos client component to Kerberos service
   uri:
@@ -52,7 +52,7 @@
     force_basic_auth: yes
     headers:
       X-Requested-By: "ambari"
-  when: not (startat > 2)
+  when: not (startat|int > 2)
 
 - name: add Kerberos client on {{ inventory_hostname }}
   uri:
@@ -65,7 +65,7 @@
     body_format: raw
     headers:
       X-Requested-By: "ambari"
-  when: not (startat > 3)
+  when: not (startat|int > 3)
 
 - name: load krb5.conf 
   shell: warn=no sed ':a;N;$!ba;s/\n/\\n/g' /etc/krb5.conf
@@ -116,7 +116,7 @@
     body_format: raw
     headers:
       X-Requested-By: "ambari"
-  when: not (startat > 4)
+  when: not (startat|int > 4)
 
 - name: stop the services
   uri:
@@ -130,7 +130,7 @@
     body_format: raw
     headers:
       X-Requested-By: "ambari"
-  when: not (startat > 5)
+  when: not (startat|int > 5)
   
 - name: wait for services to stop
   wait_for:
@@ -139,7 +139,7 @@
     state: stopped
     host: "{{ inventory_hostname }}"
   with_dict: "{{ ports }}"
-  when: not (startat > 5)
+  when: not (startat|int > 5)
 
 - name: prepare API payload for KDC admin
   set_fact:
@@ -161,7 +161,7 @@
     body_format: raw
     headers:
       X-Requested-By: "ambari"
-  when: not (startat > 6)
+  when: not (startat|int > 6)
 
 - name: set the Kerberos Descriptor 
   uri:
@@ -175,7 +175,7 @@
     body_format: json
     headers:
       X-Requested-By: "ambari"
-  when: not (startat > 7)
+  when: not (startat|int > 7)
 
 
 - name: Install the Kerberos service
@@ -190,7 +190,7 @@
     body_format: raw
     headers:
       X-Requested-By: "ambari"
-  when: not (startat > 8)
+  when: not (startat|int > 8)
 
 - name: prepare API payload
   set_fact:
@@ -198,7 +198,7 @@
       session_attributes:
         kerberos_admin:
           principal: admin/admin
-          password: "{{ ambari_password }}"
+          password: "{{ kerberos_password }}"
       Clusters:
         security_type: KERBEROS
 
@@ -214,7 +214,7 @@
     body_format: raw
     headers:
       X-Requested-By: "ambari"
-  when: not (startat > 9)
+  when: not (startat|int > 9)
 
 - name: wait for installation to complete
   wait_for:
@@ -232,7 +232,7 @@
     body_format: raw
     headers:
       X-Requested-By: "ambari"
-  when: not (startat > 10)
+  when: not (startat|int > 10)
 
 - name: re-start all services
   uri:
@@ -246,7 +246,7 @@
     body_format: raw
     headers:
       X-Requested-By: "ambari"
-  when: not (startat > 11)
+  when: not (startat|int > 11)
 
 - name: wait for services to be ready
   wait_for:
@@ -255,4 +255,4 @@
     host: "{{ inventory_hostname }}"
     timeout: 600
   with_dict: "{{ ports }}"
-  when: not (startat > 11)
+  when: not (startat|int > 11)

@@ -26,7 +26,7 @@
     creates: /var/kerberos/krb5kdc/principal
 
 - name: Create admin user
-  shell: echo -e "{{ kerberos.db_password }}\n{{ kerberos.db_password }}" | kadmin.local  -q "addprinc admin/admin"
+  shell: echo -e "{{ kerberos_password }}\n{{ kerberos_password }}" | kadmin.local  -q "addprinc admin/admin"
 
 - name: start krb5kdc
   service:
