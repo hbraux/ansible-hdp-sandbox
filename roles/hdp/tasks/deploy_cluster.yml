@@ -68,15 +68,18 @@
             - name: YARN_CLIENT
             - name: HISTORYSERVER
             - name: APP_TIMELINE_SERVER
-          #  - name: HBASE_MASTER
-          #  - name: HBASE_REGIONSERVER
-          #  - name: HCAT
-          #  - name: HIVE_SERVER
-          #  - name: HIVE_METASTORE
-          #  - name: INFRA_SOLR
-          #  - name: RANGER_ADMIN
-          #  - name: RANGER_USERSYNC
-          #  - name: RANGER_TAGSYNC
+            - name: HBASE_MASTER
+            - name: HBASE_REGIONSERVER
+            - name: HBASE_CLIENT
+            - name: HCAT
+            - name: WEBHCAT_SERVER
+            - name: HIVE_SERVER
+            - name: HIVE_METASTORE
+            - name: HIVE_CLIENT
+            - name: INFRA_SOLR
+            - name: RANGER_ADMIN
+            - name: RANGER_USERSYNC
+            - name: RANGER_TAGSYNC
       configurations:
         - hive-site:
             properties:

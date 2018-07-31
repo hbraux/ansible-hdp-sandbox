@@ -1,3 +1,7 @@
+- name: install dependencies
+  yum:
+    name: "{{ dependencies }}"
+
 # HDP Zookeper brings this useless dependency
 - name: copy fake redhat-lsb
   copy:
@@ -43,6 +47,7 @@
     description: HDP-{{ hdp_version[0:3] }}
     baseurl: "{{ hdp_url }}"
     gpgcheck: no
+
 
 - name: refresh yum
   yum:

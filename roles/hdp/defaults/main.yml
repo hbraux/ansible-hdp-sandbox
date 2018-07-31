@@ -1,3 +1,6 @@
+dependencies:
+  - snappy-devel
+
 packages:
   - hdp-select
   - zookeeper-server
@@ -7,10 +10,12 @@ packages:
   - hadoop-yarn-nodemanager
   - hadoop-yarn-resourcemanager
   - hadoop-yarn-timelineserver
+  - hadoop-yarn-proxyserver
   - hadoop-mapreduce
   - hadoop-mapreduce-historyserver
   - hadoop-hdfs
   - hadoop-yarn
+  - hadoop-libhdfs
   - hbase
   - hive-server
   - hive-webhcat
