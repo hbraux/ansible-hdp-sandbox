@@ -1,5 +1,12 @@
 dependencies:
   - snappy-devel
+  - spax
+  - time
+  - bc
+  - patch
+  - at
+  - m4
+  - ed 
 
 packages:
   - hdp-select
@@ -19,6 +26,8 @@ packages:
   - hbase
   - hive-server
   - hive-webhcat
+  - hive2
+  - hive2-jdbc
   - ambari-infra-solr
   - ranger-admin
   - ranger-usersync
