@@ -3,10 +3,10 @@
 
 - name: get latest config tags
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}?fields=Clusters/desired_configs
+    url: http://localhost:8080/api/v1/clusters/{{ cluster_name }}?fields=Clusters/desired_configs
     method: GET
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari_password }}"
     status_code: 200
     return_content: yes
     force_basic_auth: yes
@@ -20,10 +20,10 @@
 
 - name: get the latest config for {{ conf_type }}, tag {{ conf_tag }}
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/configurations?type={{ conf_type }}&tag={{ conf_tag }}
+    url: http://localhost:8080/api/v1/clusters/{{ cluster_name }}/configurations?type={{ conf_type }}&tag={{ conf_tag }}
     method: GET
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari_password }}"
     status_code: 200
     return_content: yes
     force_basic_auth: yes
@@ -49,10 +49,10 @@
 
 - name: update Cluster configuration for {{ conf_type }}
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}
+    url: http://localhost:8080/api/v1/clusters/{{ cluster_name }}
     method: PUT
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari_password }}"
     body: "{{ api_update_conf|to_json }}"
     status_code: 200
     force_basic_auth: yes

@@ -1,6 +1,6 @@
 # Destroy the cluster (tag kill)
 
-- name: WARNING, all data will be lost. Type CTRL-C to stop the process
+- name: WARNING, ALL DATA WILL BE LOST. TYPE CTRL-C TO STOP THE PLAYBOOK
   wait_for:
     timeout: 10
   tags: destroy
@@ -111,7 +111,7 @@
     - hive-hcatalog
   tags: destroy
 
-# to be sure to cleanup Ambari's cache and data
+# uninstall Ambari to be sure to cleanup cache and data
 - name: uninstall Ambari
   yum:
     name: "{{ item }}"
@@ -158,6 +158,22 @@
   when: false
   tags: destroy
 
+# reinstall Ambari from local files if exists
+- name: check for rpm files in /vagrant
+  find:
+    path: /vagrant
+    patterns: "*.rpm"
+  ignore_errors: yes
+  register: rpm_files
+  tags: destroy
+
+- name: install rpm files
+  yum:
+    name: "{{ rpm_files.files|map(attribute='path')|list }}"
+  when: rpm_files.matched > 0 
+  tags: destroy
+
+
 - debug:
     msg: IT IS RECOMMENDED TO REBOOT SERVER NOW
-
+  tags: destroy

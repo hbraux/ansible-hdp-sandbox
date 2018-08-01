@@ -1,9 +1,9 @@
 - name: stopping services
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/services/{{ item }}
+    url: http://localhost:8080/api/v1/clusters/{{ cluster_name }}/services/{{ item }}
     method: PUT
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari_password }}"
     body: '{"RequestInfo":{"context":"Stopping service"},"Body":{"ServiceInfo":{"state":"INSTALLED"}}}'
     force_basic_auth: yes
     status_code: 200,202
@@ -129,10 +129,10 @@
 # restart Ranger
 - name: starting Ranger
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/services/RANGER
+    url: http://localhost:8080/api/v1/clusters/{{ cluster_name }}/services/RANGER
     method: PUT
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari_password }}"
     body: '{"RequestInfo":{"context":"Starting Ranger"},"Body":{"ServiceInfo":{"state":"STARTED"}}}'
     force_basic_auth: yes
     status_code: 202
@@ -152,10 +152,10 @@
 
 - name: re-starting HDFS and HIVE
   uri:
-    url: http://localhost:8080/api/v1/clusters/{{ hdp.cluster.name }}/services/{{ item }}
+    url: http://localhost:8080/api/v1/clusters/{{ cluster_name }}/services/{{ item }}
     method: PUT
     user: admin
-    password: "{{ hdp.cluster.password }}"
+    password: "{{ ambari_password }}"
     body: '{"RequestInfo":{"context":"Starting service"},"Body":{"ServiceInfo":{"state":"STARTED"}}}'
     force_basic_auth: yes
     status_code: 202
