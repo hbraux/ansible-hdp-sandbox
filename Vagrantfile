@@ -7,7 +7,7 @@ BOX_IP = "192.168.56.3"
 BOX_NOSYNC = true
 GITHUB_REPO = "hbraux/ansible-hdp-sandbox"
 # options are passed as is to ansible-playbook so you can provide tags or override Ansible variables
-SETUP_OPTS="--tags prepare -e cluster_name=hdp"
+SETUP_OPTS="--tags prepare,install -e cluster_name=hdp"
 PASSWORD = "password"
 
 Vagrant.configure("2") do |config|
