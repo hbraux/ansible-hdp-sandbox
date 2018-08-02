@@ -36,7 +36,7 @@
     gpgcheck: no
   when: hdp_cache.stat.exists
 
-- name: install packages from cache
+- name: install all packages from cache
   yum:
     name: "{{ packages }}"
   when: hdp_cache.stat.exists
@@ -48,10 +48,13 @@
     baseurl: "{{ hdp_url }}"
     gpgcheck: no
 
-
 - name: refresh yum
   yum:
     list: available
+
+- name: pre-install HDP packages
+  yum:
+    name: "{{ packages }}"
 
 - name: download definition file for HDP-{{ hdp_version }}
   get_url:
