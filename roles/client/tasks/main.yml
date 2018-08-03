@@ -1,12 +1,54 @@
-- name: create environment file for hdp
+- set_fact:
+    username: "{{ ansible_ssh_user }}"
+
+- name: create Unix directory /home/{{ username }}/bin
+  file:
+    path: bin
+    state: directory
+
+- name: create HDP environment file for user {{ username }}
   template:
     src: env-HDP.j2
-    dest: /home/{{ ansible_ssh_user }}/env-HDP.sh
+    dest: bin/env-HDP.sh
 
-- name: update .bash_profile
+- name: update .bash_profile for user {{ username }}
   lineinfile:
-    path: /home/{{ ansible_ssh_user }}/.bash_profile
-    line: ". env-HDP.sh"
+    path: .bash_profile
+    line: ". $HOME/bin/env-HDP.sh"
 
+- name: check if user {{ username }} is registered in Kerberos
+  shell: /sbin/kadmin.local listprincs {{ username }}
+  register: kadmin_out
+  become: yes
 
+- name: register user {{ username }} on Kerberos
+  shell: /sbin/kadmin.local -q "add_principal -pw {{ client_kerberos_password }} {{ username }}"
+  when: kadmin_out.stdout == ""
+  become: yes
+
+- name: create HDFS directories hdfs:/user/{{ username }}/...
+  shell: |    
+    hdfs dfs -mkdir -p /user/{{ username }}/db /user/{{ username }}/work /user/{{ username }}/archive /user/{{ username }}/tmp /user/{{ username }}/staging
+    hdfs dfs -chown -R {{ username }}:users /user/{{ username }}
+  when: kadmin_out.stdout == ""
+  become: yes
+  become_user: hdfs
+
+- name: upload krb.sh
+  copy:
+    src: files/krb.sh
+    dest: bin/krb.sh
+
+- name: create Kerberos keytab
+  shell: |
+    source bin/krb.sh
+    source bin/env-HDP.sh
+    krb -k {{ client_kerberos_password }}
+  args:
+    creates: keytabs/{{ username }}.keytab
+
+- name: update .bash_profile 
+  lineinfile:
+    path: .bash_profile
+    line: ". $HOME/bin/krb.sh && krb"
 

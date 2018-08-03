@@ -16,7 +16,5 @@
     - { role: 'kerberos', become: yes, tags: 'prepare' }
     - { role: 'postgresql', become: yes, tags: 'prepare' }
     - { role: 'ambari', become: yes, tags: 'prepare' }
-    - { role: 'client', tags: 'prepare' }
     - { role: 'hdp',  become: yes, tags: 'install' }
-    
-
+    - { role: 'client', tags: 'test' }

@@ -1,7 +1,7 @@
 #!/bin/bash
 # HDP installation script
 # following optional arguments are accepted
-# -i xxx : inventory host, by default localhost (must be 1st option)
+# -i HOST : inventory host, by default localhost (must be 1st option)
 # any ansible-playbook options 
 
 
