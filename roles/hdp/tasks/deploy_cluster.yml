@@ -72,7 +72,7 @@
             - name: HBASE_REGIONSERVER
             - name: HBASE_CLIENT
             - name: HCAT
-            - name: WEBHCAT_SERVER
+            # - name: WEBHCAT_SERVER
             - name: HIVE_SERVER
             - name: HIVE_METASTORE
             - name: HIVE_CLIENT
@@ -118,7 +118,7 @@
 
 - name: create blueprint API
   uri:
-    url: http://localhost:8080/api/v1/blueprints/singlenode?validate_topology=true
+    url: http://localhost:8080/api/v1/blueprints/singlenode?validate_topology=false
     method: POST
     user: admin
     password: "{{ ambari_password }}"
