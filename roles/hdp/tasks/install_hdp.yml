@@ -48,6 +48,13 @@
     baseurl: "{{ hdp_url }}"
     gpgcheck: no
 
+- name: update yum.conf
+  lineinfile:
+    path: /etc/yum.conf
+    regexp: '^keepcache=*'
+    line: "keepcache=1"
+  when: not hdp_cache.stat.exists
+
 - name: refresh yum
   yum:
     list: available
