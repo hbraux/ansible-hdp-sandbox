@@ -66,6 +66,7 @@
             - name: RESOURCEMANAGER
             - name: NODEMANAGER
             - name: YARN_CLIENT
+            - name: MAPREDUCE2_CLIENT
             - name: HISTORYSERVER
             - name: APP_TIMELINE_SERVER
             - name: HBASE_MASTER
