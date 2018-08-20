@@ -73,14 +73,15 @@
             - name: HBASE_REGIONSERVER
             - name: HBASE_CLIENT
             - name: HCAT
-            # - name: WEBHCAT_SERVER
+            # - name: WEBHCAT_SERVER not needed
             - name: HIVE_SERVER
             - name: HIVE_METASTORE
             - name: HIVE_CLIENT
             - name: INFRA_SOLR
             - name: RANGER_ADMIN
             - name: RANGER_USERSYNC
-            - name: RANGER_TAGSYNC
+            # - name: RANGER_TAGSYNC not needed
+            - name: SPARK2_CLIENT
       configurations:
         - hive-site:
             properties:

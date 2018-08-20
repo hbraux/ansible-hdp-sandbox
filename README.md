@@ -30,7 +30,7 @@ Option A: create a VM for Windows
 * install [Vagrant](https://www.vagrantup.com/downloads.html)
 * install [Proxy plugin](https://github.com/tmatilai/vagrant-proxyconf): `vagrant plugin install vagrant-proxyconf`
 * optionnaly set environment variables VAGRANT_HTTP_PROXY, VAGRANT_HTTPS_PROXY and VAGRANT_NO_PROXY in Windows. If you have a prefered CentOS mirror set also the environment variable CENTOS_MIRROR to the mirror's fqdn
-* download `Vagrantfile` from the Git repo and save it to a work directory. Adapt the parameters if needed
+* download [Vagrantfile](https://raw.githubusercontent.com/hbraux/ansible-hdp-sandbox/master/Vagrantfile) and save it to a work directory. Adapt the parameters at the beginning of the file
 * optionnaly place RPM files in the work directory for automatic installation and update BOX_NOSYNC to false
 * Open a CMD prompt, go to the work directory, run `vagrant up` and wait for VM to be ready
 * Add line `192.168.56.3 hdp.hostonly.com` to your Windows host file (adapt IP if needed)
