@@ -60,6 +60,13 @@ cat >vagrant.yml <<EOF
         group: users
         groups: wheel
 
+    - name: create directory .ssh
+      file:
+        path: /home/{{ username }}/.ssh
+        owner: "{{ username }}"
+        state: directory
+        mode: 0700
+
     - name: add public key to user {{ username }}
       authorized_key:
         user: "{{ username }}"
@@ -138,10 +145,11 @@ cat >vagrant.yml <<EOF
         regexp: "^.*{{ fqdn }}.*$"
         line: "{{ ip }} {{ fqdn }}"
 
-    - name: check for rpm files in /vagrant 
+    - name: check for rpm files in /vagrant
       find:
         path: /vagrant
         patterns: "*.rpm"
+        recurse: yes
       ignore_errors: yes
       register: rpm_files
 
